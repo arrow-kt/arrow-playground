@@ -171,6 +171,8 @@ export default class ExecutableCode {
         return THEMES.DARCULA;
       case THEMES.IDEA:
         return THEMES.IDEA;
+      case THEMES.ARROW:
+        return THEMES.ARROW;
       default:
         return THEMES.DEFAULT;
     }
