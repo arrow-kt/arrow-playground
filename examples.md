@@ -54,15 +54,50 @@ You can also change the playground theme or disable run button using `theme` and
 
 ```html
 <div class="kotlin-code" theme="idea" data-highlight-only></div>
-``` 
-<div class="kotlin-code" data-highlight-only theme="idea">
+```
+<div class="kotlin-code" data-executable="true">
 
 ```kotlin
-fun main(args: Array<String>) {
-    println("Hello World!")
-}
-```
+import arrow.*
+import arrow.core.*
 
+val throwsSomeStuff: (Int) -> Double = {x -> x.toDouble()}
+val throwsOtherThings: (Double) -> String = {x -> x.toString()}
+val moreThrowing: (String) -> List<String> = {x -> listOf(x)}
+val magic = throwsSomeStuff.andThen(throwsOtherThings).andThen(moreThrowing)
+magic
+// (A) -> C
+```
+</div>
+
+<div class="kotlin-code" theme="idea" data-executable="true">
+
+```kotlin
+import arrow.*
+import arrow.core.*
+
+val throwsSomeStuff: (Int) -> Double = {x -> x.toDouble()}
+val throwsOtherThings: (Double) -> String = {x -> x.toString()}
+val moreThrowing: (String) -> List<String> = {x -> listOf(x)}
+val magic = throwsSomeStuff.andThen(throwsOtherThings).andThen(moreThrowing)
+magic
+// (A) -> C
+```
+</div>
+
+<div class="kotlin-code" data-executable="true" theme="arrow">
+
+```kotlin
+import arrow.*
+import arrow.core.*
+
+val throwsSomeStuff: (Int) -> Double = {x -> x.toDouble()}
+val throwsOtherThings: (Double) -> String = {x -> x.toString()}
+val moreThrowing: (String) -> List<String> = {x -> listOf(x)}
+val magic = throwsSomeStuff.andThen(throwsOtherThings).andThen(moreThrowing)
+magic
+// (A) -> C
+```
 </div>
 
 Or theme `darcula`
