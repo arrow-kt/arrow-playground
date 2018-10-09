@@ -55,10 +55,12 @@
   },
   "scripts": {
     "build": "webpack",
+    "build:arrow": "webpack --env.webDemoUrl='http://54.87.189.103:8080'",
     "build:all": "npm run build && npm run build:production",
     "build:production": "webpack -p --env.production",
     "copy-examples": "node utils/copy-examples",
     "release:ci": "rm -rf dist && npm run build:all && $NPM_TOKEN=%env.NPM_TOKEN% npm publish",
-    "start": "webpack-dev-server --port 9000"
+    "start": "webpack-dev-server --port 9000",
+    "start:arrow": "webpack-dev-server --port 9000 --env.webDemoUrl='http://54.87.189.103:8080'"
   }
 }
