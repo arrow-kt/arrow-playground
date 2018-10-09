@@ -2,7 +2,7 @@
 
 <div class="executable-fragment-wrapper">
     <div class="executable-fragment {{ theme }}">
-      {% if (!highlightOnly) %}
+      {% if (executable) %}
         <div class="run-button {{ waitingForOutput ? '_disabled' : ''}}" :onclick={{ this.execute.bind(this) }}></div>
       {% endif %}
         <div class="code-area {{ folded ? '_folded' : '_unfolded' }}">
@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    {% if (!highlightOnly) %}
+    {% if (executable) %}
         <div class="compiler-info">
             <span>Target platform: {{ targetPlatform.printableName }}</span>
             <span>Running on kotlin v. {{ compilerVersion }}</span>

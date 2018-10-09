@@ -355,7 +355,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
   initializeCodeMirror(options = {}) {
     const textarea = this.nodes[0].getElementsByTagName('textarea')[0];
-    const readOnly = options.highlightOnly && options.highlightOnly === true;
+    const readOnly = !options.executable;
     const codemirrorOptions = {
       readOnly: readOnly,
       lineNumbers: false,

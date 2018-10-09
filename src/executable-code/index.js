@@ -30,7 +30,7 @@ const DEFAULT_INDENT = 4;
 const ATTRIBUTES = {
   HIDDEN_DEPENDENCY: 'hidden-dependency',
   INDENT: 'indent',
-  HIGHLIGHT_ONLY: 'data-highlight-only',
+  EXECUTABLE: 'data-executable',
   STYLE: 'style',
   FROM: 'from',
   TO: 'to',
@@ -66,6 +66,7 @@ export default class ExecutableCode {
    */
   constructor(target, config = {}) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
+    let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
     let highlightOnly = targetNode.hasAttribute(ATTRIBUTES.HIGHLIGHT_ONLY);
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
     const indent = targetNode.hasAttribute(ATTRIBUTES.INDENT) ? parseInt(targetNode.getAttribute(ATTRIBUTES.INDENT)) : DEFAULT_INDENT;
@@ -88,7 +89,7 @@ export default class ExecutableCode {
 
     // no run code in none kotlin mode
     if (mode !== MODES.KOTLIN) {
-      highlightOnly = true;
+      executable = false;
     }
 
     targetNode.style.display = 'none';
@@ -96,7 +97,7 @@ export default class ExecutableCode {
     const mountNode = document.createElement('div');
     insertAfter(mountNode, targetNode);
 
-    const view = ExecutableFragment.render(mountNode, {highlightOnly});
+    const view = ExecutableFragment.render(mountNode);
     view.update({
       code: code,
       lines: lines,
@@ -113,6 +114,7 @@ export default class ExecutableCode {
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
       highlightOnly: highlightOnly,
+      executable: executable,
       targetPlatform: targetPlatform,
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton
