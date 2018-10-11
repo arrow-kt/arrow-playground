@@ -110,7 +110,7 @@ $wt-color-azure: #167dff;
   height: 20px;
   width: 16px;
   cursor: pointer;
-  background: url("img/run.svg");
+  background: url("../img/run.svg");
   background-size: cover;
   background-repeat: no-repeat;
 
@@ -269,11 +269,11 @@ $wt-color-azure: #167dff;
   margin-top: 1px;
   width: 16px;
   height: 16px;
-  background: $wt-color-silver url('img/close-console-icon.svg');
+  background: $wt-color-silver url('../img/close-console-icon.svg');
 }
 
 .console-close.darcula {
-  background: url('img/close-console-icon.svg');
+  background: url('../img/close-console-icon.svg');
 }
 
 .console-close:hover {
@@ -303,15 +303,15 @@ $wt-color-azure: #167dff;
 }
 
 .console-icon.attention {
-  background-image: url('img/attention.svg')
+  background-image: url('../img/attention.svg')
 }
 
 .console-icon.ok {
-  background-image: url('img/ok.svg')
+  background-image: url('../img/ok.svg')
 }
 
 .console-icon.fail {
-  background-image: url('img/fail.svg')
+  background-image: url('../img/fail.svg')
 }
 
 .test-time {
@@ -345,30 +345,30 @@ $wt-color-azure: #167dff;
   transform: translate(-50%, -50%);
   z-index: 10;
   cursor: pointer;
-  background: transparent url('img/button_open.svg?fill=%23d4d4d4&selector=.data-fill') no-repeat;
+  background: transparent url('../img/button_open.svg?fill=%23d4d4d4&selector=.data-fill') no-repeat;
   &._hover {
-    background-image: url('img/button_open.svg?fill=%23f68322&selector=.data-fill');
+    background-image: url('../img/button_open.svg?fill=%23f68322&selector=.data-fill');
   }
 }
 
 .fold-button.darcula {
-  background: url('img/button_open_darcula.svg') no-repeat;
+  background: url('../img/button_open_darcula.svg') no-repeat;
   &._hover {
-    background-image: url('img/button_open_darcula.svg?fill=%23f68322&selector=.data-fill');
+    background-image: url('../img/button_open_darcula.svg?fill=%23f68322&selector=.data-fill');
   }
 }
 
 ._unfolded {
   .fold-button {
-    background-image: url('img/button_close.svg?fill=%23d4d4d4&selector=.data-fill');
+    background-image: url('../img/button_close.svg?fill=%23d4d4d4&selector=.data-fill');
     &._hover {
-      background-image: url('img/button_close.svg?fill=%23f68322&selector=.data-fill');
+      background-image: url('../img/button_close.svg?fill=%23f68322&selector=.data-fill');
     }
   }
   .fold-button.darcula {
-    background: url('img/button_close_darcula.svg') no-repeat;
+    background: url('../img/button_close_darcula.svg') no-repeat;
     &._hover {
-      background-image: url('img/button_close_darcula.svg?fill=%23f68322&selector=.data-fill');
+      background-image: url('../img/button_close_darcula.svg?fill=%23f68322&selector=.data-fill');
     }
   }
 }

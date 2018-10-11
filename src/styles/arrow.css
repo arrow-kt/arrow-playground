@@ -1,11 +1,17 @@
 /**
-    Name: Arrow code highlighting theme
-    Author: Juan Valencia Calvellido and Arrow team
+    Name: Arrow code Codemirror highlighting theme
+    Author: Juan Valencia Calvellido
  */
+
+.cm-s-arrow.CodeMirror { background: #fefefe; color: #383a42; }
 
 .cm-s-arrow span.cm-meta { color: #ec7b75; }
 .cm-s-arrow span.cm-number { color: #986801; }
-.cm-s-arrow span.cm-keyword { line-height: 1em; font-weight: bold; color: #4172dd; }
+.cm-s-arrow span.cm-keyword {
+  color: #4172dd;
+  font-weight: bold;
+  line-height: 1em;
+}
 .cm-s-arrow span.cm-atom { font-weight: bold; color: #193E88; }
 .cm-s-arrow span.cm-def { color: #193E88; }
 .cm-s-arrow span.cm-variable { color: #222; }
@@ -21,7 +27,6 @@
 .cm-s-arrow span.cm-attribute { color: #05c1fd; }
 .cm-s-arrow span.cm-tag { color: #193E88; }
 .cm-s-arrow span.cm-link { color: #05c1fd; }
-.cm-s-arrow .CodeMirror-activeline-background { background: #fffae3; }
 
 .cm-s-arrow span.cm-builtin { color: #5848f4; }
 .cm-s-arrow span.cm-bracket { color: #cc7; }
@@ -30,6 +35,8 @@
   font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
 }
 
+.cm-s-arrow .CodeMirror-activeline-background { background: #fffae3; }
+.cm-s-arrow .CodeMirror-gutters { background-color: #fefefe; border: none;}
 
 .cm-s-arrow .CodeMirror-matchingbracket {
   outline: 1px solid rgba(0, 0, 0, 0.1);
