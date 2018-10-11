@@ -22,7 +22,7 @@ import {arrayFrom, getConfigFromElement, insertAfter, replaceWhiteSpaces, THEMES
 import WebDemoApi from "../webdemo-api";
 import TargetPlatform from '../target-platform'
 import ExecutableFragment from './executable-fragment';
-import '../styles.scss';
+import '../styles/styles.scss';
 
 const INITED_ATTRIBUTE_NAME = 'data-kotlin-playground-initialized';
 const DEFAULT_INDENT = 4;
@@ -175,8 +175,10 @@ export default class ExecutableCode {
         return THEMES.IDEA;
       case THEMES.ARROW:
         return THEMES.ARROW;
-      default:
+      case THEMES.DEFAULT:
         return THEMES.DEFAULT;
+      default:
+        return THEMES.ARROW;
     }
   }
 
