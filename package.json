@@ -55,12 +55,12 @@
   },
   "scripts": {
     "build": "webpack",
-    "build:arrow": "webpack -p --env.production --env.webDemoUrl='https://try.arrow-kt.io:8080'",
+    "build:kotlin": "webpack -p --env.production --env.webDemoUrl='https://try.kotlinlang.org'",
     "build:all": "npm run build && npm run build:production",
     "build:production": "webpack -p --env.production",
     "copy-examples": "node utils/copy-examples",
     "release:ci": "rm -rf dist && npm run build:all && $NPM_TOKEN=%env.NPM_TOKEN% npm publish",
     "start": "webpack-dev-server --port 9000",
-    "start:arrow": "webpack-dev-server --port 9000 --env.webDemoUrl='https://try.arrow-kt.io:8080'"
+    "start:kotlin": "webpack-dev-server --port 9000 --env.webDemoUrl='https://try.kotlinlang.org'"
   }
 }
