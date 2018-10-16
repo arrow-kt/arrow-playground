@@ -2,7 +2,7 @@
 
 Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
 
-[Examples](https://arrow-kt.github.io/arrow-playground/examples/)
+[Examples](/arrow-playground/examples/)
 
 ## Installation
 
