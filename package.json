@@ -1,14 +1,18 @@
 {
-  "name": "kotlin-playground",
+  "name": "arrow-playground",
   "version": "1.13.2",
-  "description": "Self-contained component to embed in websites for running Kotlin code",
+  "description": "Self-contained component to embed in websites for running Kotlin, Arrow library aware, code",
   "keywords": [
     "kotlin",
-    "runnable code"
+    "runnable code",
+    "arrow"
   ],
   "author": "JetBrains",
+  "contributors": [
+    "Juan Valencia Calvellido <juanvalencia@calvellido.es> (http://calvellido.es)"
+  ],
   "license": "Apache-2.0",
-  "repository": "JetBrains/kotlin-playground",
+  "repository": "arrow-kt/arrow-playground",
   "main": "dist/playground.min.js",
   "files": [
     "dist"
@@ -55,10 +59,12 @@
   },
   "scripts": {
     "build": "webpack",
+    "build:kotlin": "webpack -p --env.production --env.webDemoUrl='https://try.kotlinlang.org'",
     "build:all": "npm run build && npm run build:production",
     "build:production": "webpack -p --env.production",
     "copy-examples": "node utils/copy-examples",
     "release:ci": "rm -rf dist && npm run build:all && $NPM_TOKEN=%env.NPM_TOKEN% npm publish",
-    "start": "webpack-dev-server --port 9000"
+    "start": "webpack-dev-server --port 9000",
+    "start:kotlin": "webpack-dev-server --port 9000 --env.webDemoUrl='https://try.kotlinlang.org'"
   }
 }

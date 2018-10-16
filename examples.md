@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Kotlin Playground examples</title>
+  <title>Arrow Playground examples</title>
   <link rel="stylesheet" href="examples.css">
   <link rel="stylesheet" href="examples-highlight.css">
   <style>
@@ -15,19 +15,19 @@
 </head>
 <body class="markdown-body">
 
-# Kotlin Playground demo
+# Arrow Playground demo
 
 ## Automatic initialization
 
 Insert a `<script>` element into your page and specify what elements should be converted in its `data-selector` attribute.
 ```html
-<script src="https://unpkg.com/kotlin-playground@1" data-selector=".kotlin-code"></script>
+<script src="https://unpkg.com/arrow-playground@1" data-selector=".kotlin-code"></script>
 ```
 
 For instance following block of Kotlin code:
 
 ```txt
-class Contact(val id: Int, var email: String) 
+class Contact(val id: Int, var email: String)
 
 fun main(args: Array<String>) {
     val contact = Contact(1, "mary@gmail.com")
@@ -40,7 +40,7 @@ Turns into:
 <div class="kotlin-code">
 
 ```kotlin
-class Contact(val id: Int, var email: String) 
+class Contact(val id: Int, var email: String)
 
 fun main(args: Array<String>) {
     val contact = Contact(1, "mary@gmail.com")
@@ -50,28 +50,103 @@ fun main(args: Array<String>) {
 
 </div>
 
-You can also change the playground theme or disable run button using `theme` and `data-highlight-only` attributes.
+The default theme follows Arrow library colour scheme, but you can change the playground theme using the `theme` attribute. Also, you can make code snippets runnable and editable by using the `executable` attribute.
 
 ```html
-<div class="kotlin-code" theme="idea" data-highlight-only></div>
-``` 
-<div class="kotlin-code" data-highlight-only theme="idea">
+<div class="kotlin-code" data-executable="true"></div>
+```
+<div class="kotlin-code" data-executable="true">
 
 ```kotlin
+import arrow.*
+import arrow.core.*
+
+fun parse(s: String): Either<NumberFormatException, Int> =
+    if (s.matches(Regex("-?[0-9]+"))) Either.Right(s.toInt())
+    else Either.Left(NumberFormatException("$s is not a valid integer."))
+
+fun reciprocal(i: Int): Either<IllegalArgumentException, Double> =
+    if (i == 0) Either.Left(IllegalArgumentException("Cannot take reciprocal of 0."))
+    else Either.Right(1.0 / i)
+
+fun stringify(d: Double): String = d.toString()
+
+fun magic(s: String): Either<Exception, String> =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
 fun main(args: Array<String>) {
-    println("Hello World!")
+    val left = magic("Not a number")
+    val right = magic("1")
+    println(left)
+    println(right)
 }
 ```
-
 </div>
 
-Or theme `darcula`
+You can set the CodeMirror's default theme:
 
-<div class="kotlin-code" data-highlight-only theme="darcula">
+```html
+<div class="kotlin-code" data-executable="true" theme="default"></div>
+```
+
+<div class="kotlin-code" data-executable="true" theme="default">
 
 ```kotlin
+import arrow.*
+import arrow.core.*
+
+fun parse(s: String): Either<NumberFormatException, Int> =
+    if (s.matches(Regex("-?[0-9]+"))) Either.Right(s.toInt())
+    else Either.Left(NumberFormatException("$s is not a valid integer."))
+
+fun reciprocal(i: Int): Either<IllegalArgumentException, Double> =
+    if (i == 0) Either.Left(IllegalArgumentException("Cannot take reciprocal of 0."))
+    else Either.Right(1.0 / i)
+
+fun stringify(d: Double): String = d.toString()
+
+fun magic(s: String): Either<Exception, String> =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
 fun main(args: Array<String>) {
-    println("Hello World!")
+    val left = magic("Not a number")
+    val right = magic("1")
+    println(left)
+    println(right)
+}
+```
+</div>
+
+Or theme `darcula`:
+
+```html
+<div class="kotlin-code" data-executable="true" theme="darcula"></div>
+```
+
+<div class="kotlin-code" data-executable="true" theme="darcula">
+
+```kotlin
+import arrow.*
+import arrow.core.*
+
+fun parse(s: String): Either<NumberFormatException, Int> =
+    if (s.matches(Regex("-?[0-9]+"))) Either.Right(s.toInt())
+    else Either.Left(NumberFormatException("$s is not a valid integer."))
+
+fun reciprocal(i: Int): Either<IllegalArgumentException, Double> =
+    if (i == 0) Either.Left(IllegalArgumentException("Cannot take reciprocal of 0."))
+    else Either.Right(1.0 / i)
+
+fun stringify(d: Double): String = d.toString()
+
+fun magic(s: String): Either<Exception, String> =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
+fun main(args: Array<String>) {
+    val left = magic("Not a number")
+    val right = magic("1")
+    println(left)
+    println(right)
 }
 ```
 
@@ -142,7 +217,7 @@ import org.junit.Assert
 
 class TestLambdas() {
     @Test fun contains() {
-        Assert.assertTrue("The result should be true if the collection contains an even number", 
+        Assert.assertTrue("The result should be true if the collection contains an even number",
                           containsEven(listOf(1, 2, 3, 126, 555)))
     }
 
@@ -269,7 +344,7 @@ Look at example:
 
 <div class="kotlin-playground">
   import cat.Cat
-  
+
   fun main(args: Array<String>) {
   //sampleStart
       val cat = Cat("Kitty")
@@ -278,7 +353,7 @@ Look at example:
   }
   <textarea class="hidden-dependency">
     package cat
-    class Cat(val name: String) 
+    class Cat(val name: String)
   </textarea>
 </div>
 ```
@@ -299,7 +374,7 @@ fun main(args: Array<String>) {
 ```
   <textarea class="hidden-dependency">
     package cat
-    class Cat(val name: String) 
+    class Cat(val name: String)
   </textarea>
 
 </div>

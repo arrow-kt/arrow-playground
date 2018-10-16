@@ -22,7 +22,7 @@ import {arrayFrom, getConfigFromElement, insertAfter, READ_ONLY_TAG, replaceWhit
 import WebDemoApi from "../webdemo-api";
 import TargetPlatform from '../target-platform'
 import ExecutableFragment from './executable-fragment';
-import '../styles.scss';
+import '../styles/styles.scss';
 
 const INITED_ATTRIBUTE_NAME = 'data-kotlin-playground-initialized';
 const DEFAULT_INDENT = 4;
@@ -30,7 +30,7 @@ const DEFAULT_INDENT = 4;
 const ATTRIBUTES = {
   HIDDEN_DEPENDENCY: 'hidden-dependency',
   INDENT: 'indent',
-  HIGHLIGHT_ONLY: 'data-highlight-only',
+  EXECUTABLE: 'data-executable',
   STYLE: 'style',
   FROM: 'from',
   TO: 'to',
@@ -69,8 +69,7 @@ export default class ExecutableCode {
    */
   constructor(target, config = {}, eventFunctions) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
-    let highlightOnly = targetNode.getAttribute(ATTRIBUTES.HIGHLIGHT_ONLY) === READ_ONLY_TAG ?
-      targetNode.getAttribute(ATTRIBUTES.HIGHLIGHT_ONLY) : targetNode.hasAttribute(ATTRIBUTES.HIGHLIGHT_ONLY);
+    let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
     const indent = targetNode.hasAttribute(ATTRIBUTES.INDENT) ? parseInt(targetNode.getAttribute(ATTRIBUTES.INDENT)) : DEFAULT_INDENT;
     const from = targetNode.hasAttribute(ATTRIBUTES.FROM) ? parseInt(targetNode.getAttribute(ATTRIBUTES.FROM)) : null;
@@ -86,15 +85,15 @@ export default class ExecutableCode {
     const lines = targetNode.getAttribute(ATTRIBUTES.LINES) === "true";
     const onFlyHighLight = targetNode.getAttribute(ATTRIBUTES.ON_FLY_HIGHLIGHT) === "true";
     const autoComplete = targetNode.getAttribute(ATTRIBUTES.COMPLETE) === "true";
-    const matchBrackets = targetNode.getAttribute(ATTRIBUTES.MATCH_BRACKETS) === "true";
+    const matchBrackets = targetNode.getAttribute(ATTRIBUTES.MATCH_BRACKETS) !== "false";
     const autoIndent = targetNode.getAttribute(ATTRIBUTES.AUTO_INDENT) === "true";
     const mode = this.getMode(targetNode);
     const code = replaceWhiteSpaces(targetNode.textContent);
     const cfg = merge(defaultConfig, config);
 
     // no run code in none kotlin mode
-    if (mode !== MODES.KOTLIN && highlightOnly !== READ_ONLY_TAG) {
-      highlightOnly = true;
+    if (mode !== MODES.KOTLIN) {
+      executable = false;
     }
 
     targetNode.style.display = 'none';
@@ -102,7 +101,7 @@ export default class ExecutableCode {
     const mountNode = document.createElement('div');
     insertAfter(mountNode, targetNode);
 
-    const view = ExecutableFragment.render(mountNode, {highlightOnly});
+    const view = ExecutableFragment.render(mountNode);
     view.update(Object.assign({
       code: code,
       lines: lines,
@@ -119,7 +118,7 @@ export default class ExecutableCode {
       noneMarkers: noneMarkers,
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
-      highlightOnly: highlightOnly,
+      executable: executable,
       targetPlatform: targetPlatform,
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
@@ -180,8 +179,12 @@ export default class ExecutableCode {
         return THEMES.DARCULA;
       case THEMES.IDEA:
         return THEMES.IDEA;
-      default:
+      case THEMES.ARROW:
+        return THEMES.ARROW;
+      case THEMES.DEFAULT:
         return THEMES.DEFAULT;
+      default:
+        return THEMES.ARROW;
     }
   }
 
