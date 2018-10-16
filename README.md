@@ -4,6 +4,11 @@ Component that creates Kotlin-aware, including the Arrow library, editors capabl
 
 [Examples](/arrow-playground/examples/)
 
+## Preview
+
+![Arrow Playground preview](https://github.com/calvellido/arrow-playground/blob/master/preview.png "Arrow Playground")
+
+
 ## Installation
 
 ### Load it from a CDN
