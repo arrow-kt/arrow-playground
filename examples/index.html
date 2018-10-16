@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Kotlin Playground examples</title>
+  <title>Arrow Playground examples</title>
   <link rel="stylesheet" href="examples.css">
   <link rel="stylesheet" href="examples-highlight.css">
   <style>
@@ -11,16 +11,16 @@
 		margin: 50px auto;
 	}
   </style>
-  <script src="https://unpkg.com/kotlin-playground@1" data-selector=".kotlin-code"></script>
+  <script src="./playground.min.js" data-selector=".kotlin-code"></script>
 </head>
 <body class="markdown-body">
-<h1>Kotlin Playground demo</h1>
+<h1>Arrow Playground demo</h1>
 <h2>Automatic initialization</h2>
 <p>Insert a <code>&lt;script&gt;</code> element into your page and specify what elements should be converted in its <code>data-selector</code> attribute.</p>
-<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/kotlin-playground@1"</span> <span class="hljs-attr">data-selector</span>=<span class="hljs-string">".kotlin-code"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span> <span class="hljs-attr">data-selector</span>=<span class="hljs-string">".kotlin-code"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
 <p>For instance following block of Kotlin code:</p>
-<pre><code class="hljs language-txt">class Contact(val id: Int, var email: String) 
+<pre><code class="hljs language-txt">class Contact(val id: Int, var email: String)
 
 fun main(args: Array&lt;String&gt;) {
     val contact = Contact(1, &quot;mary@gmail.com&quot;)
@@ -29,7 +29,7 @@ fun main(args: Array&lt;String&gt;) {
 </code></pre>
 <p>Turns into:</p>
 <div class="kotlin-code">
-<pre><code class="hljs language-kotlin"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Contact</span></span>(<span class="hljs-keyword">val</span> id: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">var</span> email: String) 
+<pre><code class="hljs language-kotlin"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Contact</span></span>(<span class="hljs-keyword">val</span> id: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">var</span> email: String)
 
 <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
     <span class="hljs-keyword">val</span> contact = Contact(<span class="hljs-number">1</span>, <span class="hljs-string">"mary@gmail.com"</span>)
@@ -37,19 +37,87 @@ fun main(args: Array&lt;String&gt;) {
 }
 </code></pre>
 </div>
-<p>You can also change the playground theme or disable run button using <code>theme</code> and <code>data-highlight-only</code> attributes.</p>
-<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">theme</span>=<span class="hljs-string">"idea"</span> <span class="hljs-attr">data-highlight-only</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<p>The default theme follows Arrow library colour scheme, but you can change the playground theme using the <code>theme</code> attribute. Also, you can make code snippets runnable and editable by using the <code>executable</code> attribute.</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">data-executable</span>=<span class="hljs-string">"true"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 </code></pre>
-<div class="kotlin-code" data-highlight-only theme="idea">
-<pre><code class="hljs language-kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
-    println(<span class="hljs-string">"Hello World!"</span>)
+<div class="kotlin-code" data-executable="true">
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">import</span> arrow.*
+<span class="hljs-keyword">import</span> arrow.core.*
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;NumberFormatException, <span class="hljs-built_in">Int</span>&gt; =
+    <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) Either.Right(s.toInt())
+    <span class="hljs-keyword">else</span> Either.Left(NumberFormatException(<span class="hljs-string">"<span class="hljs-variable">$s</span> is not a valid integer."</span>))
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: Either&lt;IllegalArgumentException, <span class="hljs-built_in">Double</span>&gt; =
+    <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) Either.Left(IllegalArgumentException(<span class="hljs-string">"Cannot take reciprocal of 0."</span>))
+    <span class="hljs-keyword">else</span> Either.Right(<span class="hljs-number">1.0</span> / i)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">magic</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Exception, String&gt; =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
+    <span class="hljs-keyword">val</span> left = magic(<span class="hljs-string">"Not a number"</span>)
+    <span class="hljs-keyword">val</span> right = magic(<span class="hljs-string">"1"</span>)
+    println(left)
+    println(right)
 }
 </code></pre>
 </div>
-<p>Or theme <code>darcula</code></p>
-<div class="kotlin-code" data-highlight-only theme="darcula">
-<pre><code class="hljs language-kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
-    println(<span class="hljs-string">"Hello World!"</span>)
+<p>You can set the CodeMirror's default theme:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">data-executable</span>=<span class="hljs-string">"true"</span> <span class="hljs-attr">theme</span>=<span class="hljs-string">"default"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<div class="kotlin-code" data-executable="true" theme="default">
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">import</span> arrow.*
+<span class="hljs-keyword">import</span> arrow.core.*
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;NumberFormatException, <span class="hljs-built_in">Int</span>&gt; =
+    <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) Either.Right(s.toInt())
+    <span class="hljs-keyword">else</span> Either.Left(NumberFormatException(<span class="hljs-string">"<span class="hljs-variable">$s</span> is not a valid integer."</span>))
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: Either&lt;IllegalArgumentException, <span class="hljs-built_in">Double</span>&gt; =
+    <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) Either.Left(IllegalArgumentException(<span class="hljs-string">"Cannot take reciprocal of 0."</span>))
+    <span class="hljs-keyword">else</span> Either.Right(<span class="hljs-number">1.0</span> / i)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">magic</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Exception, String&gt; =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
+    <span class="hljs-keyword">val</span> left = magic(<span class="hljs-string">"Not a number"</span>)
+    <span class="hljs-keyword">val</span> right = magic(<span class="hljs-string">"1"</span>)
+    println(left)
+    println(right)
+}
+</code></pre>
+</div>
+<p>Or theme <code>darcula</code>:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">data-executable</span>=<span class="hljs-string">"true"</span> <span class="hljs-attr">theme</span>=<span class="hljs-string">"darcula"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<div class="kotlin-code" data-executable="true" theme="darcula">
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">import</span> arrow.*
+<span class="hljs-keyword">import</span> arrow.core.*
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;NumberFormatException, <span class="hljs-built_in">Int</span>&gt; =
+    <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) Either.Right(s.toInt())
+    <span class="hljs-keyword">else</span> Either.Left(NumberFormatException(<span class="hljs-string">"<span class="hljs-variable">$s</span> is not a valid integer."</span>))
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: Either&lt;IllegalArgumentException, <span class="hljs-built_in">Double</span>&gt; =
+    <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) Either.Left(IllegalArgumentException(<span class="hljs-string">"Cannot take reciprocal of 0."</span>))
+    <span class="hljs-keyword">else</span> Either.Right(<span class="hljs-number">1.0</span> / i)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">magic</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Exception, String&gt; =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
+    <span class="hljs-keyword">val</span> left = magic(<span class="hljs-string">"Not a number"</span>)
+    <span class="hljs-keyword">val</span> right = magic(<span class="hljs-string">"1"</span>)
+    println(left)
+    println(right)
 }
 </code></pre>
 </div>
@@ -101,7 +169,7 @@ Then implement extension functions Int.r() and Pair.r() and make them convert In
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestLambdas</span></span>() {
     <span class="hljs-meta">@Test</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">contains</span><span class="hljs-params">()</span></span> {
-        Assert.assertTrue(<span class="hljs-string">"The result should be true if the collection contains an even number"</span>, 
+        Assert.assertTrue(<span class="hljs-string">"The result should be true if the collection contains an even number"</span>,
                           containsEven(listOf(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">126</span>, <span class="hljs-number">555</span>)))
     }
 
@@ -209,7 +277,7 @@ Put your files between <code>&lt;textarea&gt;</code> tag with class <code>hidden
 <pre><code class="hljs language-html">
 <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-playground"</span>&gt;</span>
   import cat.Cat
-  
+
   fun main(args: Array<span class="hljs-tag">&lt;<span class="hljs-name">String</span>&gt;</span>) {
   //sampleStart
       val cat = Cat("Kitty")
@@ -218,7 +286,7 @@ Put your files between <code>&lt;textarea&gt;</code> tag with class <code>hidden
   }
   <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"hidden-dependency"</span>&gt;</span>
     package cat
-    class Cat(val name: String) 
+    class Cat(val name: String)
   <span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 </code></pre>
@@ -235,7 +303,7 @@ fun main(args: Array&lt;String&gt;) {
 </code></pre>
   <textarea class="hidden-dependency">
     package cat
-    class Cat(val name: String) 
+    class Cat(val name: String)
   </textarea>
 </div>
 </body>
