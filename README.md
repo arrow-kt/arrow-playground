@@ -60,6 +60,46 @@ document.addEventListener('DOMContentLoaded', () => {
 2) [Kotlin Playground Coursera plugin](https://github.com/AlexanderPrendota/kotlin-playground-coursera-plugin) — Allows embedding interactive Kotlin playground for [coursera](https://www.coursera.org/) lessons.
 -->
 
+### Events
+
+Kotlin Playground supports several events on additional parameter on initialisation;
+
+For example:
+```js
+function onChange(code) {
+  console.log("Editor code was changed:\n" + code);
+}
+
+function onTestPassed() {
+   console.log("Tests passed!");
+}
+
+const eventFunctions = {
+  onChange: onChange(code),
+  onTestPassed: onTestPassed,
+  callback: callback(targetNode, mountNode)
+};
+
+playground('.selector', eventFunctions)
+
+```
+
+**Events description:**
+
+- `onChage(code)` — Fires every time the content of the editor is changed. Debounce time: 0.5s.
+ _code_ — current playground code.
+
+
+- `onTestPassed` — Is called after all tests passed. Use for target platform `junit`.
+
+- `onCloseConsole` — Is called after the console's closed.
+
+- `onOpenConsole` — Is called after the console's opened.
+
+- `callback(targetNode, mountNode)` — Is called after playground's united.
+ _targetNode_ — node with plain text before component initialization.
+ _mountNode_  — new node with runnable editor.
+
 ## Customizing editors
 
 
@@ -153,11 +193,15 @@ Use the following attributes on elements that are converted to editors to adjust
 
 - `from="5" to="10`: Create a part of code. Example `from` line 5 `to` line 10.
 
+- `data-output-height="200"`: Set the iframe height in `px` in output. Use for target platform `canvas`. 
+
+- `match-brackets="true|false""`: Determines whether brackets are matched whenever the cursor is moved next to a bracket. Defaults to `false`.
+
 
 ## Supported keyboard shortcuts
 
   - Ctrl+Space		   — code completion
-  - Ctrl+F9		       — execute snippet
+  - Ctrl+F9/Cmd+R	       — execute snippet
   - Ctrl+/		       — comment code
   - Ctrl+Alt+L/Cmd+Alt+L   — format code
   - Shift+Tab		   — decrease indent

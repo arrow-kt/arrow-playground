@@ -18,7 +18,7 @@ import 'codemirror/mode/swift/swift';
 import merge from 'deepmerge';
 import Set from 'es6-set/polyfill';
 import defaultConfig, {API_URLS} from '../config';
-import {arrayFrom, getConfigFromElement, insertAfter, replaceWhiteSpaces, THEMES} from '../utils';
+import {arrayFrom, getConfigFromElement, insertAfter, READ_ONLY_TAG, replaceWhiteSpaces, THEMES} from '../utils';
 import WebDemoApi from "../webdemo-api";
 import TargetPlatform from '../target-platform'
 import ExecutableFragment from './executable-fragment';
@@ -37,6 +37,8 @@ const ATTRIBUTES = {
   NONE_MARKERS: 'none-markers',
   THEME: 'theme',
   MODE: 'mode',
+  MATCH_BRACKETS: 'match-brackets',
+  OUTPUT_HEIGHT: 'data-output-height',
   COMPLETE: 'autocomplete',
   ON_FLY_HIGHLIGHT: 'highlight-on-fly',
   PLATFORM: 'data-target-platform',
@@ -62,12 +64,12 @@ const MODES = {
 export default class ExecutableCode {
   /**
    * @param {string|HTMLElement} target
-   * @param {KotlinPlayGroundConfig} [config]
+   * @param {{compilerVersion: *}} [config]
+   * @param {Object} eventFunctions
    */
-  constructor(target, config = {}) {
+  constructor(target, config = {}, eventFunctions) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
     let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
-    let highlightOnly = targetNode.hasAttribute(ATTRIBUTES.HIGHLIGHT_ONLY);
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
     const indent = targetNode.hasAttribute(ATTRIBUTES.INDENT) ? parseInt(targetNode.getAttribute(ATTRIBUTES.INDENT)) : DEFAULT_INDENT;
     const from = targetNode.hasAttribute(ATTRIBUTES.FROM) ? parseInt(targetNode.getAttribute(ATTRIBUTES.FROM)) : null;
@@ -75,6 +77,7 @@ export default class ExecutableCode {
     const editorTheme = this.getTheme(targetNode);
     const args = targetNode.hasAttribute(ATTRIBUTES.ARGUMENTS) ? targetNode.getAttribute(ATTRIBUTES.ARGUMENTS) : "";
     const hiddenDependencies = this.getHiddenDependencies(targetNode);
+    const outputHeight = targetNode.getAttribute(ATTRIBUTES.OUTPUT_HEIGHT) || null;
     const targetPlatform = TargetPlatform.getById(targetNode.getAttribute(ATTRIBUTES.PLATFORM));
     const targetNodeStyle = targetNode.getAttribute(ATTRIBUTES.STYLE);
     const jsLibs = this.getJsLibraries(targetNode, targetPlatform);
@@ -82,6 +85,7 @@ export default class ExecutableCode {
     const lines = targetNode.getAttribute(ATTRIBUTES.LINES) === "true";
     const onFlyHighLight = targetNode.getAttribute(ATTRIBUTES.ON_FLY_HIGHLIGHT) === "true";
     const autoComplete = targetNode.getAttribute(ATTRIBUTES.COMPLETE) === "true";
+    const matchBrackets = targetNode.getAttribute(ATTRIBUTES.MATCH_BRACKETS) === "true";
     const autoIndent = targetNode.getAttribute(ATTRIBUTES.AUTO_INDENT) === "true";
     const mode = this.getMode(targetNode);
     const code = replaceWhiteSpaces(targetNode.textContent);
@@ -98,13 +102,14 @@ export default class ExecutableCode {
     insertAfter(mountNode, targetNode);
 
     const view = ExecutableFragment.render(mountNode);
-    view.update({
+    view.update(Object.assign({
       code: code,
       lines: lines,
       theme: editorTheme,
       indent: indent,
       args: args,
       mode: mode,
+      matchBrackets: matchBrackets,
       from: from,
       to: to,
       autoComplete: autoComplete,
@@ -113,12 +118,12 @@ export default class ExecutableCode {
       noneMarkers: noneMarkers,
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
-      highlightOnly: highlightOnly,
       executable: executable,
       targetPlatform: targetPlatform,
       jsLibs: jsLibs,
-      isFoldedButton: isFoldedButton
-    });
+      isFoldedButton: isFoldedButton,
+      outputHeight
+    }, eventFunctions));
 
     this.config = cfg;
     this.node = mountNode;
@@ -127,6 +132,7 @@ export default class ExecutableCode {
     this.view = view;
 
     targetNode.KotlinPlayground = this;
+     if (eventFunctions && eventFunctions.callback) eventFunctions.callback(targetNode, mountNode);
   }
 
   /**
@@ -230,10 +236,10 @@ export default class ExecutableCode {
 
   /**
    * @param {string|Node|NodeList} target
-   * @param {boolean} highlightOnly
+   * @param {Function} eventFunctions
    * @return {Promise<Array<ExecutableCode>>}
    */
-  static create(target, highlightOnly) {
+  static create(target, eventFunctions) {
     let targetNodes;
 
     if (typeof target === 'string') {
@@ -283,10 +289,7 @@ export default class ExecutableCode {
           return;
         }
 
-        instances.push(new ExecutableCode(node, {
-          compilerVersion,
-          highlightOnly
-        }));
+        instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions));
       });
 
       return instances;

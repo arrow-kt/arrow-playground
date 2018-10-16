@@ -1,4 +1,4 @@
-import {arrayFrom, convertToHtmlTag} from "../utils";
+import {arrayFrom, convertToHtmlTag, processingHtmlTags} from "../utils";
 import isEmptyObject from "is-empty-object"
 import escapeHtml from "escape-html"
 
@@ -10,14 +10,20 @@ const NO_TEST_FOUND = "No tests methods are found";
 const ANGLE_BRACKETS_LEFT_HTML = "&lt;";
 const ANGLE_BRACKETS_RIGHT_HTML = "&gt;";
 
+const TEST_STATUS = {
+  FAIL : { value: "FAIL", text: "Fail" },
+  ERROR: { value: "ERROR", text: "Error" },
+  PASSED : { value: "OK", text: "Passed" }
+};
+
 const BUG_FLAG = `${ANGLE_BRACKETS_LEFT_HTML}errStream${ANGLE_BRACKETS_RIGHT_HTML}BUG${ANGLE_BRACKETS_LEFT_HTML}/errStream${ANGLE_BRACKETS_RIGHT_HTML}`;
 const BUG_REPORT_MESSAGE = `${ANGLE_BRACKETS_LEFT_HTML}errStream${ANGLE_BRACKETS_RIGHT_HTML}Hey! It seems you just found a bug! \uD83D\uDC1E\n` +
-            `Please click <a href=https://youtrack.jetbrains.com/newIssue?draftId=25-2077811 target=_blank>here<a> to submit it ` +
+            `Please click <a href=http://kotl.in/issue target=_blank>here<a> to submit it ` +
             `to the issue tracker and one day we fix it, hopefully \uD83D\uDE09\n` +
             `✅ Don't forget to attach code to the issue${ANGLE_BRACKETS_LEFT_HTML}/errStream${ANGLE_BRACKETS_RIGHT_HTML}\n`;
 
 export function processJVMOutput(output, theme) {
-  let processedOutput = escapeHtml(output);
+  let processedOutput = processingHtmlTags(output); // don't need to escape `&`
   return processedOutput
     .replace(BUG_FLAG, BUG_REPORT_MESSAGE)
     .replace(`${ANGLE_BRACKETS_LEFT_HTML}outStream${ANGLE_BRACKETS_RIGHT_HTML}`, `<span class="standard-output ${theme}">`)
@@ -26,24 +32,27 @@ export function processJVMOutput(output, theme) {
     .replace(`${ANGLE_BRACKETS_LEFT_HTML}/errStream${ANGLE_BRACKETS_RIGHT_HTML}`, "</span>");
 }
 
-export function processJUnitResults(data) {
+export function processJUnitResults(data, onTestPassed) {
   let result = "";
   let totalTime = 0;
+  let passed = true;
   if (isEmptyObject(data)) return NO_TEST_FOUND;
   for (let testClass in data) {
     let listOfResults = arrayFrom(data[testClass]);
-    result = result + listOfResults.reduce((previousTest, currentTest) => {
+    result += listOfResults.reduce((previousTest, currentTest) => {
       totalTime = totalTime + (currentTest.executionTime / 1000);
+      if (currentTest.status === TEST_STATUS.ERROR.value || currentTest.status === TEST_STATUS.FAIL.value) passed = false;
       switch (currentTest.status) {
-        case "FAIL":
-          return previousTest + `<span class="console-icon fail"></span><div class="test-fail">${currentTest.status} ${currentTest.methodName}: ${convertToHtmlTag(currentTest.comparisonFailure.message)}</div>`;
-        case "ERROR":
-          return previousTest + `<span class="console-icon fail"></span><div class="test-fail">${currentTest.status} ${currentTest.methodName}: ${convertToHtmlTag(currentTest.exception.message)}</div>`;
-        case "OK":
-          return previousTest + `<span class="console-icon ok"></span><div class="test-output">${currentTest.status} ${currentTest.methodName}</div>`;
+        case TEST_STATUS.FAIL.value:
+          return previousTest + `<span class="console-icon fail"></span><div class="test-fail">${TEST_STATUS.FAIL.text}: ${currentTest.methodName}: ${convertToHtmlTag(currentTest.comparisonFailure.message)}</div>`;
+        case TEST_STATUS.ERROR.value:
+          return previousTest + `<span class="console-icon fail"></span><div class="test-fail">${TEST_STATUS.ERROR.text}: ${currentTest.methodName}: ${convertToHtmlTag(currentTest.exception.message)}</div>`;
+        case TEST_STATUS.PASSED.value:
+          return previousTest + `<span class="console-icon ok"></span><div class="test-output">${TEST_STATUS.PASSED.text}: ${currentTest.methodName}</div>`;
       }
     }, "");
   }
+  if (passed && onTestPassed) onTestPassed();
   let testTime = `<div class="test-time">Total test time: ${totalTime}s</div>`;
   return testTime + result;
 }
@@ -51,7 +60,7 @@ export function processJUnitResults(data) {
 export function processErrors(errors, theme) {
   return errors
     .reduce((acc, currentValue) => {
-        return acc + `<span class="console-icon attention"></span><div class="test-fail ${theme}">${convertToHtmlTag(currentValue.message)}</div>`
+        return acc + `<span class="console-icon attention"></span><div class="test-fail ${theme}">${escapeHtml(currentValue.message)}</div>`
       }
       , "");
 }

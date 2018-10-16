@@ -8,6 +8,7 @@ import WebDemoApi from '../webdemo-api';
 import TargetPlatform from "../target-platform";
 import getJsExecutor from "../js-executor"
 import {countLines, THEMES, unEscapeString} from "../utils";
+import debounce from 'debounce';
 import escapeStringRegexp from "escape-string-regexp"
 import CompletionView from "../view/completion-view";
 import {processErrors, showJsException} from "../view/output-view";
@@ -16,7 +17,11 @@ const SAMPLE_START = '//sampleStart';
 const SAMPLE_END = '//sampleEnd';
 const MARK_PLACEHOLDER_OPEN = "[mark]";
 const MARK_PLACEHOLDER_CLOSE = "[/mark]";
-const F9_KEY = 120;
+const KEY_CODES = {
+  R: 82,
+  F9: 120
+};
+const DEBOUNCE_TIME = 500;
 
 const SELECTORS = {
   CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-canvas-placeholder",
@@ -55,8 +60,14 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     });
 
     instance.on('keyup', (event) => {
-      if (event.keyCode === F9_KEY && event.ctrlKey) {
-        instance.execute();
+      if (window.navigator.appVersion.indexOf("Mac") !== -1) {
+        if (event.keyCode === KEY_CODES.R && event.ctrlKey) {
+          instance.execute();
+        }
+      } else {
+        if (event.keyCode === KEY_CODES.F9 && event.ctrlKey) {
+          instance.execute();
+        }
       }
     });
 
@@ -212,38 +223,50 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
   }
 
   onConsoleCloseButtonEnter() {
-    if (this.state.targetPlatform === TargetPlatform.CANVAS) {
-      this.jsExecutor.reloadIframeScripts(this.state.jsLibs, this.getNodeForMountIframe(TargetPlatform.CANVAS));
+    const {targetPlatform, jsLibs, onCloseConsole} = this.state;
+    if (targetPlatform === TargetPlatform.CANVAS) {
+      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(TargetPlatform.CANVAS));
     }
     this.update({output: "", openConsole: false});
+    if (onCloseConsole) onCloseConsole();
   }
 
   execute() {
-    if (this.state.waitingForOutput) {
+    const {
+      onOpenConsole, targetPlatform, waitingForOutput, compilerVersion,
+      args, theme, hiddenDependencies, onTestPassed, onCloseConsole, jsLibs, outputHeight
+    } = this.state;
+    if (waitingForOutput) {
       return
     }
     this.update({
       waitingForOutput: true,
       openConsole: false
     });
-    let platform = this.state.targetPlatform;
-    if (platform === TargetPlatform.JAVA || platform === TargetPlatform.JUNIT) {
+    //open when waitingForOutput=true
+    if (onOpenConsole) onOpenConsole();
+    if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
       WebDemoApi.executeKotlinCode(
         this.getCode(),
-        this.state.compilerVersion,
-        platform, this.state.args,
-        this.state.theme,
-        this.state.hiddenDependencies).then(
+        compilerVersion,
+        targetPlatform, args,
+        theme,
+        hiddenDependencies,
+        onTestPassed).then(
         state => {
           state.waitingForOutput = false;
-          if (state.output) state.openConsole = true;
+          if (state.output) {
+            state.openConsole = true;
+          } else {
+            if (onCloseConsole) onCloseConsole();
+          }
           this.update(state);
         },
         () => this.update({waitingForOutput: false})
       )
     } else {
-      if (platform === TargetPlatform.CANVAS) this.jsExecutor.reloadIframeScripts(this.state.jsLibs, this.getNodeForMountIframe(platform));
-      WebDemoApi.translateKotlinToJs(this.getCode(), this.state.compilerVersion, platform, this.state.args, this.state.hiddenDependencies).then(
+      if (targetPlatform === TargetPlatform.CANVAS) this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(targetPlatform));
+      WebDemoApi.translateKotlinToJs(this.getCode(), compilerVersion, targetPlatform, args, hiddenDependencies).then(
         state => {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
@@ -253,12 +276,19 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
             if (errors.length > 0) {
               state.output = processErrors(errors);
             } else {
-              const codeOutput = this.jsExecutor.executeJsCode(jsCode, this.state.jsLibs, platform, this.getNodeForMountIframe(platform));
+              const codeOutput = this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform,
+                this.getNodeForMountIframe(targetPlatform), outputHeight);
               if (codeOutput) {
                 state.openConsole = true;
-                state.output = `<span class="standard-output ${this.state.theme}">${codeOutput}</span>`
-              } else state.output = "";
-              if (platform === TargetPlatform.CANVAS) state.openConsole = true;
+                state.output = `<span class="standard-output ${theme}">${codeOutput}</span>`;
+              } else {
+                state.output = "";
+                if (onCloseConsole) onCloseConsole();
+              }
+              if (targetPlatform === TargetPlatform.CANVAS) {
+                if (onOpenConsole) onOpenConsole();
+                state.openConsole = true;
+              }
             }
           } catch (e) {
             let exceptionOutput = showJsException(e);
@@ -361,7 +391,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       lineNumbers: false,
       mode: options.mode,
       theme: options.theme,
-      matchBrackets: true,
+      matchBrackets: options.matchBrackets,
       scrollbarStyle: 'overlay',
       continueComments: true,
       autoCloseBrackets: true,
@@ -401,7 +431,12 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       );
 
       function processingCompletionsList(results) {
-        const currentSymbol = mirror.getRange(cur, {line: cur.line, ch: cur.ch + 1});
+        const anchorCharPosition = mirror.findWordAt({line: cur.line, ch: cur.ch}).anchor.ch;
+        const headCharPosition = mirror.findWordAt({line: cur.line, ch: cur.ch}).head.ch;
+        const currentSymbol = mirror.getRange({line: cur.line, ch: anchorCharPosition}, {
+          line: cur.line,
+          ch: headCharPosition
+        });
         if (results.length === 0 && /^[a-zA-Z]+$/.test(currentSymbol)) {
           CodeMirror.showHint(mirror, CodeMirror.hint.default, {completeSingle: false});
         } else {
@@ -449,25 +484,27 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
      * 1) Remove all styles
      * 2) if onFlyHighLight flag => getting highlight
      */
-    this.codemirror.on("change", () => {
+    this.codemirror.on("change", debounce((cm) => {
+      const {onChange, onFlyHighLight, compilerVersion, targetPlatform, hiddenDependencies} = this.state;
+      if (onChange) onChange(cm.getValue());
       this.removeStyles();
-      if (this.state.onFlyHighLight) {
+      if (onFlyHighLight) {
         WebDemoApi.getHighlight(
           this.getCode(),
-          this.state.compilerVersion,
-          this.state.targetPlatform,
-          this.state.hiddenDependencies).then(data => this.showDiagnostics(data))
+          compilerVersion,
+          targetPlatform,
+          hiddenDependencies).then(data => this.showDiagnostics(data))
       }
-    });
+    }, DEBOUNCE_TIME));
 
     /**
      * If autoComplete => Getting completion on every key press on the editor.
      */
-    this.codemirror.on("keypress", (cm) => {
+    this.codemirror.on("keypress", debounce((cm) => {
       if (this.state.autoComplete) {
         CodeMirror.showHint(cm, CodeMirror.hint.kotlin, {completeSingle: false});
       }
-    });
+    }, DEBOUNCE_TIME));
 
     /**
      * Select marker's placeholder on mouse click

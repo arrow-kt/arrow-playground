@@ -12,6 +12,13 @@ export const THEMES = {
   ARROW: "arrow",
   DEFAULT: "default"
 };
+
+/**
+ * CodeMirror readonly tag
+ * @type {string}
+ */
+export const READ_ONLY_TAG = 'nocursor';
+
 /**
  * @param {*} arrayLike
  * @return {Array}
@@ -69,6 +76,23 @@ export function isEmbeddedFromCdn() {
  */
 export function insertAfter(newNode, referenceNode) {
   referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+/**
+ * Convert all `<` and `>` to `&lt;` and `&gt;`
+ * @param string
+ * @returns {*}
+ */
+export function processingHtmlTags(string) {
+  const tagsToReplace = {
+    "&lt;": "<",
+    "&gt;": ">"
+  };
+  let unEscapedString = string;
+  Object.keys(tagsToReplace).forEach(function (key) {
+    unEscapedString = unEscapedString.replace(new RegExp(tagsToReplace[key], 'g'), key)
+  });
+  return unEscapedString
 }
 
 /**
