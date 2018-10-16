@@ -85,7 +85,7 @@ export default class ExecutableCode {
     const lines = targetNode.getAttribute(ATTRIBUTES.LINES) === "true";
     const onFlyHighLight = targetNode.getAttribute(ATTRIBUTES.ON_FLY_HIGHLIGHT) === "true";
     const autoComplete = targetNode.getAttribute(ATTRIBUTES.COMPLETE) === "true";
-    const matchBrackets = targetNode.getAttribute(ATTRIBUTES.MATCH_BRACKETS) === "true";
+    const matchBrackets = targetNode.getAttribute(ATTRIBUTES.MATCH_BRACKETS) !== "false";
     const autoIndent = targetNode.getAttribute(ATTRIBUTES.AUTO_INDENT) === "true";
     const mode = this.getMode(targetNode);
     const code = replaceWhiteSpaces(targetNode.textContent);
