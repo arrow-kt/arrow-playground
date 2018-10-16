@@ -2,7 +2,7 @@
 
 Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
 
-[Examples](/arrow-playground/examples/)
+[Examples](https://arrow-kt.github.io/arrow-playground/examples/)
 
 ## Preview
 
@@ -186,7 +186,7 @@ Use the following attributes on elements that are converted to editors to adjust
 
 - `mode="kotlin|js|java|groovy|xml|c|shell|swift|obj-c"`: Different languages styles. Runnable snippets only with `kotlin`. Default to `kotlin`.
 
-- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.kotlinlang.org/kotlinServer?type=getKotlinVersions)
+- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io:8080/kotlinServer?type=getKotlinVersions)
 
 - `highlight-on-fly="true|false"`: Errors and warnings check for each change in the editor. Defaults to `false`.
 
