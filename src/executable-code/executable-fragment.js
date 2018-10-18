@@ -315,18 +315,10 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
   }
 
-  removeImports (completeSnippet, importSnippet) {
-    let newArr = [];
+  removeImports (completeSnippet) {
+    const noImportsSnippet = completeSnippet.filter(line => !line.includes(SEARCH_IMPORT));
 
-    completeSnippet.map(function(val) {
-      importSnippet.includes(val) ? '' : newArr.push(val);
-    });
-
-    importSnippet.map(function(val) {
-      completeSnippet.includes(val) ? '' : newArr.push(val) ;
-    });
-
-    return newArr;
+    return noImportsSnippet;
   }
 
   getImportLines() {
