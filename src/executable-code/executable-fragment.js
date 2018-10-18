@@ -317,7 +317,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     
   getImportLines() {
       const allSnippet = this.codemirror.getValue().split("\n");
-      const allImportLines = allSnippet.filter(line => line.indexOf(SEARCH_IMPORT) !== -1);
+      const allImportLines = allSnippet.filter(line => line.includes(SEARCH_IMPORT));
       
       return allImportLines;
   }
