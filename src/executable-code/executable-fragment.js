@@ -314,11 +314,25 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       ? document.body
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
   }
-    
+
+  removeImports (completeSnippet, importSnippet) {
+    let newArr = [];
+
+    completeSnippet.map(function(val) {
+      importSnippet.includes(val) ? '' : newArr.push(val);
+    });
+
+    importSnippet.map(function(val) {
+      completeSnippet.includes(val) ? '' : newArr.push(val) ;
+    });
+
+    return newArr;
+  }
+
   getImportLines() {
       const allSnippet = this.codemirror.getValue().split("\n");
       const allImportLines = allSnippet.filter(line => line.includes(SEARCH_IMPORT));
-      
+
       return allImportLines;
   }
 
