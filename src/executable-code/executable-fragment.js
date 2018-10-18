@@ -22,6 +22,7 @@ const KEY_CODES = {
   F9: 120
 };
 const DEBOUNCE_TIME = 500;
+const SEARCH_IMPORT = "import ";
 
 const SELECTORS = {
   CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-canvas-placeholder",
@@ -312,6 +313,13 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     return platform === TargetPlatform.JS
       ? document.body
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
+  }
+    
+  getImportLines() {
+      const allSnippet = this.codemirror.getValue().split("\n");
+      const allImportLines = allSnippet.filter(line => line.indexOf(SEARCH_IMPORT) !== -1);
+      
+      return allImportLines;
   }
 
   getCode() {
