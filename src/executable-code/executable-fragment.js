@@ -314,11 +314,17 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       ? document.body
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
   }
-    
+
+  removeImports (completeSnippet) {
+    const noImportsSnippet = completeSnippet.filter(line => !line.includes(SEARCH_IMPORT));
+
+    return noImportsSnippet;
+  }
+
   getImportLines() {
       const allSnippet = this.codemirror.getValue().split("\n");
       const allImportLines = allSnippet.filter(line => line.includes(SEARCH_IMPORT));
-      
+
       return allImportLines;
   }
 
