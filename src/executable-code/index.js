@@ -101,7 +101,7 @@ export default class ExecutableCode {
     const mountNode = document.createElement('div');
     insertAfter(mountNode, targetNode);
 
-    const view = ExecutableFragment.render(mountNode);
+    const view = ExecutableFragment.render(mountNode, { parent: this });
     view.update(Object.assign({
       code: code,
       lines: lines,
@@ -291,6 +291,8 @@ export default class ExecutableCode {
 
         instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions));
       });
+
+      ExecutableCode.prototype.instances = instances;
 
       return instances;
     });

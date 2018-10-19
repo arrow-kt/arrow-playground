@@ -44,6 +44,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       'directives': directives
     });
 
+    instance.parent = options.parent ? options.parent : null;
     instance.arrayClasses = [];
     instance.initialized = false;
     instance.state = {
