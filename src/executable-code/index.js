@@ -70,7 +70,8 @@ export default class ExecutableCode {
    */
   constructor(target, config = {}, eventFunctions, id = null) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
-    let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
+    let executable = targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "true" || targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "incremental";
+    const incremental = targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "incremental";
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
     const indent = targetNode.hasAttribute(ATTRIBUTES.INDENT) ? parseInt(targetNode.getAttribute(ATTRIBUTES.INDENT)) : DEFAULT_INDENT;
     const from = targetNode.hasAttribute(ATTRIBUTES.FROM) ? parseInt(targetNode.getAttribute(ATTRIBUTES.FROM)) : null;
@@ -120,6 +121,7 @@ export default class ExecutableCode {
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
       executable: executable,
+      incremental: incremental,
       targetPlatform: targetPlatform,
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
