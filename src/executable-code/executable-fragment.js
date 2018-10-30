@@ -23,6 +23,8 @@ const KEY_CODES = {
 };
 const DEBOUNCE_TIME = 500;
 const SEARCH_IMPORT = "import ";
+const WRAPPING_FUNCTION_TOP_LINE = "\nfun main(args: Array<String>) {println({";
+const WRAPPING_FUNCTION_BOTTOM_LINE = "}())}";
 
 const SELECTORS = {
   CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-canvas-placeholder",
@@ -336,6 +338,42 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     } else {
       return this.codemirror.getValue()
     }
+  }
+
+  getIncModeCode() {
+    const previousSnippets = this.parent.instances.slice(0, this.parent.id);
+
+    const previousSnippetsImports = previousSnippets
+      .map(snippet => snippet.view.getImportLines())
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const previousSnippetsCode = previousSnippets
+      .map(snippet => snippet.view.getCodeWithoutImports())
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const completeCode = [
+        previousSnippetsCode,
+        this.getCodeWithoutImports()]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const wrappedCode =  [
+        WRAPPING_FUNCTION_TOP_LINE,
+        completeCode,
+        WRAPPING_FUNCTION_BOTTOM_LINE]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const fullSnippet = [
+        previousSnippetsImports,
+        this.getImportLines(),
+        wrappedCode]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    return fullSnippet;
   }
 
   recalculatePosition(position) {
