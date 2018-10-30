@@ -316,17 +316,18 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
   }
 
-  removeImports (completeSnippet) {
-    const noImportsSnippet = completeSnippet.filter(line => !line.includes(SEARCH_IMPORT));
-
-    return noImportsSnippet;
+  getImportLines() {
+    const completeSnippet = this.getCode().split("\n");
+    return completeSnippet.filter(line =>
+      line.includes(SEARCH_IMPORT))
+      .join("\n");
   }
 
-  getImportLines() {
-      const allSnippet = this.codemirror.getValue().split("\n");
-      const allImportLines = allSnippet.filter(line => line.includes(SEARCH_IMPORT));
-
-      return allImportLines;
+  getCodeWithoutImports () {
+    const completeSnippet = this.getCode().split("\n");
+    return completeSnippet.filter(line =>
+      !line.includes(SEARCH_IMPORT))
+      .join("\n");
   }
 
   getCode() {
