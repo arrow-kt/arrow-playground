@@ -23,6 +23,8 @@ const KEY_CODES = {
 };
 const DEBOUNCE_TIME = 500;
 const SEARCH_IMPORT = "import ";
+const WRAPPING_FUNCTION_TOP_LINE = "\nfun main(args: Array<String>) {println({";
+const WRAPPING_FUNCTION_BOTTOM_LINE = "}())}";
 
 const SELECTORS = {
   CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-canvas-placeholder",
@@ -45,6 +47,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       'directives': directives
     });
 
+    instance.parent = options.parent ? options.parent : null;
     instance.arrayClasses = [];
     instance.initialized = false;
     instance.state = {
@@ -244,11 +247,14 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       waitingForOutput: true,
       openConsole: false
     });
+
+    const code = this.state.incremental ? this.getIncModeCode() : this.getCode();
+
     //open when waitingForOutput=true
     if (onOpenConsole) onOpenConsole();
     if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
       WebDemoApi.executeKotlinCode(
-        this.getCode(),
+        code,
         compilerVersion,
         targetPlatform, args,
         theme,
@@ -267,7 +273,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       )
     } else {
       if (targetPlatform === TargetPlatform.CANVAS) this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(targetPlatform));
-      WebDemoApi.translateKotlinToJs(this.getCode(), compilerVersion, targetPlatform, args, hiddenDependencies).then(
+      WebDemoApi.translateKotlinToJs(code, compilerVersion, targetPlatform, args, hiddenDependencies).then(
         state => {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
@@ -315,17 +321,18 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
   }
 
-  removeImports (completeSnippet) {
-    const noImportsSnippet = completeSnippet.filter(line => !line.includes(SEARCH_IMPORT));
-
-    return noImportsSnippet;
+  getImportLines() {
+    const completeSnippet = this.getCode().split("\n");
+    return completeSnippet.filter(line =>
+      line.includes(SEARCH_IMPORT))
+      .join("\n");
   }
 
-  getImportLines() {
-      const allSnippet = this.codemirror.getValue().split("\n");
-      const allImportLines = allSnippet.filter(line => line.includes(SEARCH_IMPORT));
-
-      return allImportLines;
+  getCodeWithoutImports () {
+    const completeSnippet = this.getCode().split("\n");
+    return completeSnippet.filter(line =>
+      !line.includes(SEARCH_IMPORT))
+      .join("\n");
   }
 
   getCode() {
@@ -334,6 +341,42 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     } else {
       return this.codemirror.getValue()
     }
+  }
+
+  getIncModeCode() {
+    const previousSnippets = this.parent.instances.slice(0, this.parent.id);
+
+    const previousSnippetsImports = previousSnippets
+      .map(snippet => snippet.view.getImportLines())
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const previousSnippetsCode = previousSnippets
+      .map(snippet => snippet.view.getCodeWithoutImports())
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const completeCode = [
+        previousSnippetsCode,
+        this.getCodeWithoutImports()]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const wrappedCode =  [
+        WRAPPING_FUNCTION_TOP_LINE,
+        completeCode,
+        WRAPPING_FUNCTION_BOTTOM_LINE]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    const fullSnippet = [
+        previousSnippetsImports,
+        this.getImportLines(),
+        wrappedCode]
+      .filter(line => line.length > 0)
+      .join("\n");
+
+    return fullSnippet;
   }
 
   recalculatePosition(position) {

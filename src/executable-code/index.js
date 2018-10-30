@@ -66,10 +66,12 @@ export default class ExecutableCode {
    * @param {string|HTMLElement} target
    * @param {{compilerVersion: *}} [config]
    * @param {Object} eventFunctions
+   * @param {number} id
    */
-  constructor(target, config = {}, eventFunctions) {
+  constructor(target, config = {}, eventFunctions, id = null) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
-    let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
+    let executable = targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "true" || targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "incremental";
+    const incremental = targetNode.getAttribute(ATTRIBUTES.EXECUTABLE) === "incremental";
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
     const indent = targetNode.hasAttribute(ATTRIBUTES.INDENT) ? parseInt(targetNode.getAttribute(ATTRIBUTES.INDENT)) : DEFAULT_INDENT;
     const from = targetNode.hasAttribute(ATTRIBUTES.FROM) ? parseInt(targetNode.getAttribute(ATTRIBUTES.FROM)) : null;
@@ -101,7 +103,7 @@ export default class ExecutableCode {
     const mountNode = document.createElement('div');
     insertAfter(mountNode, targetNode);
 
-    const view = ExecutableFragment.render(mountNode);
+    const view = ExecutableFragment.render(mountNode, { parent: this });
     view.update(Object.assign({
       code: code,
       lines: lines,
@@ -119,12 +121,14 @@ export default class ExecutableCode {
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
       executable: executable,
+      incremental: incremental,
       targetPlatform: targetPlatform,
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
       outputHeight
     }, eventFunctions));
 
+    this.id = id;
     this.config = cfg;
     this.node = mountNode;
     this.targetNode = targetNode;
@@ -258,7 +262,7 @@ export default class ExecutableCode {
     return WebDemoApi.getCompilerVersions().then((versions) => {
       const instances = [];
 
-      targetNodes.forEach((node) => {
+      targetNodes.forEach((node, index) => {
         const config = getConfigFromElement(node, true);
         const minCompilerVersion = config.minCompilerVersion;
         let latestStableVersion = null;
@@ -289,8 +293,10 @@ export default class ExecutableCode {
           return;
         }
 
-        instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions));
+        instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions, index));
       });
+
+      ExecutableCode.prototype.instances = instances;
 
       return instances;
     });
