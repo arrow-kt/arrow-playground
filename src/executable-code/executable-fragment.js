@@ -247,11 +247,14 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       waitingForOutput: true,
       openConsole: false
     });
+
+    const code = this.state.incremental ? this.getIncModeCode() : this.getCode();
+
     //open when waitingForOutput=true
     if (onOpenConsole) onOpenConsole();
     if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
       WebDemoApi.executeKotlinCode(
-        this.getCode(),
+        code,
         compilerVersion,
         targetPlatform, args,
         theme,
@@ -270,7 +273,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       )
     } else {
       if (targetPlatform === TargetPlatform.CANVAS) this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(targetPlatform));
-      WebDemoApi.translateKotlinToJs(this.getCode(), compilerVersion, targetPlatform, args, hiddenDependencies).then(
+      WebDemoApi.translateKotlinToJs(code, compilerVersion, targetPlatform, args, hiddenDependencies).then(
         state => {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
