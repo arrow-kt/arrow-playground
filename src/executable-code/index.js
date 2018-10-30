@@ -66,8 +66,9 @@ export default class ExecutableCode {
    * @param {string|HTMLElement} target
    * @param {{compilerVersion: *}} [config]
    * @param {Object} eventFunctions
+   * @param {number} id
    */
-  constructor(target, config = {}, eventFunctions) {
+  constructor(target, config = {}, eventFunctions, id = null) {
     const targetNode = typeof target === 'string' ? document.querySelector(target) : target;
     let executable = targetNode.hasAttribute(ATTRIBUTES.EXECUTABLE);
     const noneMarkers = targetNode.hasAttribute(ATTRIBUTES.NONE_MARKERS);
@@ -125,6 +126,7 @@ export default class ExecutableCode {
       outputHeight
     }, eventFunctions));
 
+    this.id = id;
     this.config = cfg;
     this.node = mountNode;
     this.targetNode = targetNode;
@@ -258,7 +260,7 @@ export default class ExecutableCode {
     return WebDemoApi.getCompilerVersions().then((versions) => {
       const instances = [];
 
-      targetNodes.forEach((node) => {
+      targetNodes.forEach((node, index) => {
         const config = getConfigFromElement(node, true);
         const minCompilerVersion = config.minCompilerVersion;
         let latestStableVersion = null;
@@ -289,7 +291,7 @@ export default class ExecutableCode {
           return;
         }
 
-        instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions));
+        instances.push(new ExecutableCode(node, { compilerVersion }, eventFunctions, index));
       });
 
       ExecutableCode.prototype.instances = instances;
