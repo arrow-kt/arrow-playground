@@ -83,6 +83,10 @@ fun main(args: Array<String>) {
 ```
 </div>
 
+You can play with the `data-executable="incremental"` setting in this specific page where all code snippets are set in that mode:
+
+[Incremental mode examples](/arrow-playground/incremental/)
+
 You can set the CodeMirror's default theme:
 
 ```html

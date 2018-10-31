@@ -2,7 +2,7 @@
 
 Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
 
-[Examples](https://arrow-kt.github.io/arrow-playground/examples/)
+[Examples](/arrow-playground/examples/)
 
 ## Preview
 
@@ -138,17 +138,17 @@ Use the following attributes on elements that are converted to editors to adjust
     */
    </code>
    ```
-- `executable`: Editable and runnable mode, not just highlighting.
+- `data-executable`: Editable and runnable mode, not just highlighting.
 
   ```html
-  <code executable="true">
+  <code data-executable="true">
     /*
     Your code here
     */
   </code>
   ```
 
-- `executable="incremental"`: Special mode where the code will be added to the code of the previous snippets, extracting `import`s and placing them at the top. Additionally this mode will wrap the executable code in a custom `main` function. So in the end what it will be executed will be something like this:
+- `data-executable="incremental"`: Special mode where the code will be added to the code of the previous snippets, extracting `import`s and placing them at the top. Additionally this mode will wrap the executable code in a custom `main` function. So in the end what it will be executed will be something like this:
 
 ```kotlin
 // All imports
@@ -165,12 +165,16 @@ fun main(args: Array<String>) {println({
 ```
 
   ```html
-  <code executable="incremental">
+  <code data-executable="incremental">
     /*
     Your code here
     */
   </code>
   ```
+
+  You can play with this setting in this specific page where all code snippets are set in this mode:
+
+  [Incremental mode examples](/arrow-playground/incremental/)
 
   Also, you can make only a part of code read-only by placing it between `//sampleStart` and `//sampleEnd` markers.
   If you don't need this just use attribute `none-markers`.

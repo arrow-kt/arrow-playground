@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Arrow Playground examples</title>
+  <link rel="stylesheet" href="examples.css">
+  <link rel="stylesheet" href="examples-highlight.css">
+  <style>
+  .markdown-body {
+		max-width: 980px;
+		margin: 50px auto;
+	}
+  </style>
+  <script src="./playground.min.js" data-selector=".language-kotlin"></script>
+</head>
+<body class="markdown-body">
+<h1>Arrow Playground demo</h1>
+<p><em>This is an example document extracted from the Λrrow documentation, to read the actual version please visit: <a href="https://arrow-kt.io/docs/datatypes/either">arrow-kt.io/docs/datatypes/either</a></em></p>
+<h2>Either</h2>
+<p>In day-to-day programming, it is fairly common to find ourselves writing functions that can fail.
+For instance, querying a service may result in a connection issue, or some unexpected JSON response.</p>
+<p>To communicate these errors it has become common practice to throw exceptions; however,
+exceptions are not tracked in any way, shape, or form by the compiler. To see what
+kind of exceptions (if any) a function may throw, we have to dig through the source code.
+Then to handle these exceptions, we have to make sure we catch them at the call site. This
+all becomes even more unwieldy when we try to compose exception-throwing procedures.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">import arrow.*
+import arrow.core.*
+
+<span class="hljs-keyword">val</span> throwsSomeStuff: (Int) -&gt; Double = {x -&gt; x.<span class="hljs-keyword">to</span><span class="hljs-constructor">Double()</span>}
+<span class="hljs-keyword">val</span> throwsOtherThings: (Double) -&gt; String = {x -&gt; x.<span class="hljs-keyword">to</span><span class="hljs-constructor">String()</span>}
+<span class="hljs-keyword">val</span> moreThrowing: (String) -&gt; List&lt;String&gt; = {x -&gt; <span class="hljs-built_in">list</span><span class="hljs-constructor">Of(<span class="hljs-params">x</span>)</span>}
+<span class="hljs-keyword">val</span> magic = throwsSomeStuff.<span class="hljs-keyword">and</span><span class="hljs-constructor">Then(<span class="hljs-params">throwsOtherThings</span>)</span>.<span class="hljs-keyword">and</span><span class="hljs-constructor">Then(<span class="hljs-params">moreThrowing</span>)</span>
+magic
+</code></pre>
+</div>
+<p>Assume we happily throw exceptions in our code. Looking at the types of the above functions, any of them could throw any number of exceptions -- we do not know. When we compose, exceptions from any of the constituent
+functions can be thrown. Moreover, they may throw the same kind of exception
+(e.g. <code>IllegalArgumentException</code>) and thus it gets tricky tracking exactly where an exception came from.</p>
+<p>How then do we communicate an error? By making it explicit in the data type we return.</p>
+<h2>Either vs Validated</h2>
+<p>In general, <code>Validated</code> is used to accumulate errors, while <code>Either</code> is used to short-circuit a computation
+upon the first error. For more information, see the <code>Validated</code> vs <code>Either</code> section of the <code>Validated</code> documentation.</p>
+<p>By convention the right hand side of an <code>Either</code> is used to hold successful values.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-built_in">right</span>: Either&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Int</span>&gt; = Either.<span class="hljs-built_in">Right</span>(<span class="hljs-number">5</span>)
+<span class="hljs-built_in">right</span>
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-built_in">left</span>: Either&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Int</span>&gt; = Either.<span class="hljs-built_in">Left</span>(<span class="hljs-string">"Something went wrong"</span>)
+<span class="hljs-built_in">left</span>
+</code></pre>
+</div>
+Because `Either` is right-biased, it is possible to define a Monad instance for it.
+<p>Since we only ever want the computation to continue in the case of <code>Right</code> (as captured by the right-bias nature),
+we fix the left type parameter and leave the right one free.</p>
+<p>So the map and flatMap methods are right-biased:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-built_in">right</span>: Either&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Int</span>&gt; = Either.<span class="hljs-built_in">Right</span>(<span class="hljs-number">5</span>)
+<span class="hljs-built_in">right</span>.flatMap{Either.<span class="hljs-built_in">Right</span>(it + <span class="hljs-number">1</span>)}
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-built_in">left</span>: Either&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Int</span>&gt; = Either.<span class="hljs-built_in">Left</span>(<span class="hljs-string">"Something went wrong"</span>)
+<span class="hljs-built_in">left</span>.flatMap{Either.<span class="hljs-built_in">Right</span>(it + <span class="hljs-number">1</span>)}
+</code></pre>
+</div>
+<h2>Using Either instead of exceptions</h2>
+<p>As a running example, we will have a series of functions that will:</p>
+<ul>
+<li>Parse a string into an integer</li>
+<li>Calculate the reciprocal</li>
+<li>Convert the reciprocal into a string</li>
+</ul>
+<p>Using exception-throwing code, we could write something like this:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-comment">// Exception Style</span>
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: <span class="hljs-built_in">Int</span> =
+    <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) s.toInt()
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> NumberFormatException(<span class="hljs-string">"<span class="hljs-variable">$s</span> is not a valid integer."</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Double</span> =
+    <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span> IllegalArgumentException(<span class="hljs-string">"Cannot take reciprocal of 0."</span>)
+    <span class="hljs-keyword">else</span> <span class="hljs-number">1.0</span> / i
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+</code></pre>
+</div>
+<p>Instead, let's make the fact that some of our functions can fail explicit in the return type.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-comment">// Either Style</span>
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;NumberFormatException, <span class="hljs-built_in">Int</span>&gt; =
+    <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) Either.Right(s.toInt())
+    <span class="hljs-keyword">else</span> Either.Left(NumberFormatException(<span class="hljs-string">"<span class="hljs-variable">$s</span> is not a valid integer."</span>))
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: Either&lt;IllegalArgumentException, <span class="hljs-built_in">Double</span>&gt; =
+    <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) Either.Left(IllegalArgumentException(<span class="hljs-string">"Cannot take reciprocal of 0."</span>))
+    <span class="hljs-keyword">else</span> Either.Right(<span class="hljs-number">1.0</span> / i)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">magic</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Exception, String&gt; =
+    parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+
+</code></pre>
+</div>
+<p>These calls to <code>parse</code> returns a <code>Left</code> and <code>Right</code> value</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">parse</span><span class="hljs-params">(<span class="hljs-string">"Not a number"</span>)</span></span>
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">parse</span><span class="hljs-params">(<span class="hljs-string">"2"</span>)</span></span>
+</code></pre>
+</div>
+<p>Now, using combinators like <code>flatMap</code> and <code>map</code>, we can compose our functions together.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">magic</span><span class="hljs-params">(<span class="hljs-string">"0"</span>)</span></span>
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">magic</span><span class="hljs-params">(<span class="hljs-string">"1"</span>)</span></span>
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">magic</span><span class="hljs-params">(<span class="hljs-string">"Not a number"</span>)</span></span>
+</code></pre>
+</div>
+<p>In the following exercise we pattern-match on every case the <code>Either</code> returned by <code>magic</code> can be in.
+Note the <code>when</code> clause in the <code>Left</code> - the compiler will complain if we leave that out because it knows that
+given the type <code>Either[Exception, String]</code>, there can be inhabitants of <code>Left</code> that are not
+<code>NumberFormatException</code> or <code>IllegalArgumentException</code>. You should also notice that we are using
+<a href="https://kotlinlang.org/docs/reference/typecasts.html#smart-casts">SmartCast</a> for accessing to <code>Left</code> and <code>Right</code>
+value.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val x = magic(<span class="hljs-string">"2"</span>)
+val value = <span class="hljs-keyword">when</span>(x) {
+    <span class="hljs-keyword">is</span> Either.Left<span class="hljs-function"> -&gt;</span> <span class="hljs-keyword">when</span> (x.a){
+        <span class="hljs-keyword">is</span> NumberFormatException<span class="hljs-function"> -&gt;</span> <span class="hljs-string">"Not a number!"</span>
+        <span class="hljs-keyword">is</span> IllegalArgumentException<span class="hljs-function"> -&gt;</span> <span class="hljs-string">"Can't take reciprocal of 0!"</span>
+        <span class="hljs-keyword">else</span><span class="hljs-function"> -&gt;</span> <span class="hljs-string">"Unknown error"</span>
+    }
+    <span class="hljs-keyword">is</span> Either.Right<span class="hljs-function"> -&gt;</span> <span class="hljs-string">"Got reciprocal: ${x.b}"</span>
+}
+value
+</code></pre>
+</div>
+<p>Instead of using exceptions as our error value, let's instead enumerate explicitly the things that
+can go wrong in our program.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-comment">// Either with ADT Style</span>
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span> </span>{
+    <span class="hljs-keyword">object</span> NotANumber : Error()
+    <span class="hljs-keyword">object</span> NoZeroReciprocal : Error()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parse</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Error, <span class="hljs-built_in">Int</span>&gt; =
+        <span class="hljs-keyword">if</span> (s.matches(Regex(<span class="hljs-string">"-?[0-9]+"</span>))) Either.Right(s.toInt())
+        <span class="hljs-keyword">else</span> Either.Left(Error.NotANumber)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reciprocal</span><span class="hljs-params">(i: <span class="hljs-type">Int</span>)</span></span>: Either&lt;Error, <span class="hljs-built_in">Double</span>&gt; =
+        <span class="hljs-keyword">if</span> (i == <span class="hljs-number">0</span>) Either.Left(Error.NoZeroReciprocal)
+        <span class="hljs-keyword">else</span> Either.Right(<span class="hljs-number">1.0</span> / i)
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">stringify</span><span class="hljs-params">(d: <span class="hljs-type">Double</span>)</span></span>: String = d.toString()
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">magic</span><span class="hljs-params">(s: <span class="hljs-type">String</span>)</span></span>: Either&lt;Error, String&gt; =
+        parse(s).flatMap{reciprocal(it)}.map{stringify(it)}
+</code></pre>
+</div>
+<p>For our little module, we enumerate any and all errors that can occur. Then, instead of using
+exception classes as error values, we use one of the enumerated cases. Now when we pattern match,
+we are able to comphrensively handle failure without resulting to an <code>else</code> branch; moreover
+since Error is sealed, no outside code can add additional subtypes which we might fail to handle.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val x = magic(<span class="hljs-string">"2"</span>)
+<span class="hljs-function"><span class="hljs-title">when</span><span class="hljs-params">(x)</span></span> {
+    is Either<span class="hljs-selector-class">.Left</span> -&gt; when (x.a){
+        is Error<span class="hljs-selector-class">.NotANumber</span> -&gt; <span class="hljs-string">"Not a number!"</span>
+        is Error<span class="hljs-selector-class">.NoZeroReciprocal</span> -&gt; <span class="hljs-string">"Can't take reciprocal of 0!"</span>
+    }
+    is Either<span class="hljs-selector-class">.Right</span> -&gt; <span class="hljs-string">"Got reciprocal: ${x.b}"</span>
+}
+</code></pre>
+</div>
+<h2>Syntax</h2>
+<p>Either can also map over the <code>left</code> value with <code>mapLeft</code> which is similar to map but applies on left instances.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-keyword">val</span> r : Either&lt;<span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>&gt; = Either.Right(<span class="hljs-number">7</span>)
+r.mapLeft {it + <span class="hljs-number">1</span>}
+<span class="hljs-keyword">val</span> l: Either&lt;<span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>&gt; = Either.Left(<span class="hljs-number">7</span>)
+l.mapLeft {it + <span class="hljs-number">1</span>}
+</code></pre>
+</div>
+<p><code>Either&lt;A, B&gt;</code> can be transformed to <code>Either&lt;B,A&gt;</code> using the <code>swap()</code> method.</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val r: <span class="hljs-keyword">Either&lt;String, </span>Int&gt; = <span class="hljs-keyword">Either.Right(7)
+</span>r.<span class="hljs-keyword">swap()
+</span></code></pre>
+</div>
+<p>For using Either's syntax on arbitrary data types.
+This will make possible to use the <code>left()</code>, <code>right()</code>, <code>contains()</code>, <code>getOrElse()</code> and <code>getOrHandle()</code> methods:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-number">7.</span>right()
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-string">"hello"</span>.<span class="hljs-built_in">left</span>()
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-meta">x</span> = 7<span class="hljs-meta">.right(</span>)
+<span class="hljs-meta">x</span>.contains(7)
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-meta">x</span> = <span class="hljs-string">"hello"</span><span class="hljs-meta">.left(</span>)
+<span class="hljs-meta">x</span>.getOrElse { 7 }
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val <span class="hljs-meta">x</span> = <span class="hljs-string">"hello"</span><span class="hljs-meta">.left(</span>)
+<span class="hljs-meta">x</span>.getOrHandle { <span class="hljs-string">"$it world!"</span> }
+</code></pre>
+</div>
+<p>For creating Either instance based on a predicate, use <code>Either.cond()</code> method :</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Either</span>.</span></span>cond(<span class="hljs-literal">true</span>, { <span class="hljs-number">42</span> }, { <span class="hljs-string">"Error"</span> })
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Either</span>.</span></span>cond(<span class="hljs-literal">false</span>, { <span class="hljs-number">42</span> }, { <span class="hljs-string">"Error"</span> })
+</code></pre>
+</div>
+<p>Another operation is <code>fold</code>. This operation will extract the value from the Either, or provide a default if the value is <code>Left</code></p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val x : Either&lt;Int, Int&gt; = <span class="hljs-number">7.</span>right()
+x.fold({ <span class="hljs-number">1</span> }, { it + <span class="hljs-number">3</span> })
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">val y : Either&lt;Int, Int&gt; = <span class="hljs-number">7.</span>left()
+y.fold({ <span class="hljs-number">1</span> }, { it + <span class="hljs-number">3</span> })
+</code></pre>
+</div>
+<p>The <code>getOrHandle()</code> operation allows the transformation of an <code>Either.Left</code> value to a <code>Either.Right</code> using
+the value of <code>Left</code>. This can be useful when a mapping to a single result type is required like <code>fold()</code> but without
+the need to handle <code>Either.Right</code> case.</p>
+<p>As an example we want to map an <code>Either&lt;Throwable, Int&gt;</code> to a proper HTTP status code:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-keyword">val</span> r: Either&lt;Throwable, <span class="hljs-built_in">Int</span>&gt; = Either.Left(NumberFormatException())
+<span class="hljs-keyword">val</span> httpStatusCode = r.getOrHandle {
+	<span class="hljs-keyword">when</span>(it) {
+		<span class="hljs-keyword">is</span> NumberFormatException -&gt; <span class="hljs-number">400</span>
+		<span class="hljs-keyword">else</span> -&gt; <span class="hljs-number">500</span>
+	}
+} <span class="hljs-comment">// 400</span>
+</code></pre>
+</div>
+<p>The <code>leftIfNull</code> operation transforms a null <code>Either.Right</code> value to the specified <code>Either.Left</code> value.
+If the value is non-null, the value wrapped into a non-nullable <code>Either.Right</code> is returned (very useful to
+skip null-check further down the call chain).
+If the operation is called on an <code>Either.Left</code>, the same <code>Either.Left</code> is returned.</p>
+<p>See the examples below:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">Right</span><span class="hljs-params">(<span class="hljs-number">12</span>)</span></span>.leftIfNull({ -<span class="hljs-number">1</span> })
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">Right</span>(<span class="hljs-variable"><span class="hljs-literal">null</span></span>).leftIfNull({ -<span class="hljs-number">1</span> })</span>
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"> Left(<span class="hljs-number">12</span>).leftIfNull({ <span class="hljs-number">-1</span> })
+</code></pre>
+</div>
+<p>Another useful operation when working with null is <code>rightIfNotNull</code>.
+If the value is null it will be transformed to the specified <code>Either.Left</code> and if its not null the type will
+be wrapped to <code>Either.Right</code>.</p>
+<p>Example:</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-string">"value"</span><span class="hljs-selector-class">.rightIfNotNull</span> { <span class="hljs-string">"left"</span> }
+</code></pre>
+</div>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">null<span class="hljs-selector-class">.rightIfNotNull</span> { <span class="hljs-string">"left"</span> }
+</code></pre>
+</div>
+<p>Arrow contains <code>Either</code> instances for many useful typeclasses that allows you to use and transform right values.
+Both Option and Try don't require a type parameter with the following functions, but it is specifically used for Either.Left</p>
+<p><a href="https://arrow-kt.io/docs/typeclasses/functor/"><code>Functor</code></a></p>
+<p>Transforming the inner contents</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs"><span class="hljs-keyword">import</span> arrow.instances.*
+
+ForEither&lt;Int&gt;() extensions {
+   Right(<span class="hljs-number">1</span>).map {it + <span class="hljs-number">1</span>}
+}
+</code></pre>
+</div>
+<p><a href="https://arrow-kt.io/docs/typeclasses/applicative/"><code>Applicative</code></a></p>
+<p>Computing over independent values</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">ForEither&lt;<span class="hljs-type">Int</span>&gt;() extensions {
+  tupled(Either.Right(<span class="hljs-number">1</span>), Either.Right("a"), Either.Right(<span class="hljs-number">2.0</span>))
+}
+</code></pre>
+</div>
+<p><a href="https://arrow-kt.io/docs/typeclasses/monad/"><code>Monad</code></a></p>
+<p>Computing over dependent values ignoring absence</p>
+<div class="language-kotlin" data-executable="incremental">
+<pre><code class="hljs">ForEither&lt;Int&gt;<span class="hljs-literal">()</span> extensions {
+ binding {
+    <span class="hljs-keyword">val</span> a = Either.<span class="hljs-constructor">Right(1)</span>.bind<span class="hljs-literal">()</span>
+    <span class="hljs-keyword">val</span> b = Either.<span class="hljs-constructor">Right(1 + <span class="hljs-params">a</span>)</span>.bind<span class="hljs-literal">()</span>
+    <span class="hljs-keyword">val</span> c = Either.<span class="hljs-constructor">Right(1 + <span class="hljs-params">b</span>)</span>.bind<span class="hljs-literal">()</span>
+    a + b + c
+ }
+}
+<span class="hljs-comment">// Right(6)</span>
+</code></pre>
+</div>
+<h2>Available Instances</h2>
+<ul>
+<li><a href="https://arrow-kt.io/docs/typeclasses/show">Show</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/eq">Eq</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/applicative">Applicative</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/applicativeerror">ApplicativeError</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/foldable">Foldable</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/functor">Functor</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/bifunctor">Bifunctor</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/monad">Monad</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/monaderror">MonadError</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/semigroupk">SemigroupK</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/traverse">Traverse</a></li>
+<li><a href="https://arrow-kt.io/docs/typeclasses/traversefilter">TraverseFilter</a></li>
+<li><a href="https://arrow-kt.io/docs/optics/each">Each</a></li>
+</ul>
+</body>
+</html>
