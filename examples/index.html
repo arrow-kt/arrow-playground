@@ -65,6 +65,8 @@ fun main(args: Array&lt;String&gt;) {
 }
 </code></pre>
 </div>
+<p>You can play with the <code>data-executable=&quot;incremental&quot;</code> setting in this specific page where all code snippets are set in that mode:</p>
+<p><a href="/arrow-playground/incremental/">Incremental mode examples</a></p>
 <p>You can set the CodeMirror's default theme:</p>
 <pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">data-executable</span>=<span class="hljs-string">"true"</span> <span class="hljs-attr">theme</span>=<span class="hljs-string">"default"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 </code></pre>
@@ -130,7 +132,7 @@ fun main(args: Array&lt;String&gt;) {
 }
 
 <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">(args: <span class="hljs-type">Array</span>&lt;<span class="hljs-type">String</span>&gt;)</span></span> {
-    print(sum(<span class="hljs-number">-1</span>, <span class="hljs-number">8</span>))
+    print(sum(-<span class="hljs-number">1</span>, <span class="hljs-number">8</span>))
 }
 </code></pre>
 </div>
@@ -141,7 +143,7 @@ fun main(args: Array&lt;String&gt;) {
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestExtensionFunctions</span></span>() {
     <span class="hljs-meta">@Test</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">testIntExtension</span><span class="hljs-params">()</span></span> {
-        Assert.assertEquals(<span class="hljs-string">"Rational number creation error: "</span>, RationalNumber(<span class="hljs-number">4</span>, <span class="hljs-number">1</span>), <span class="hljs-number">4.</span>r())
+        Assert.assertEquals(<span class="hljs-string">"Rational number creation error: "</span>, RationalNumber(<span class="hljs-number">4</span>, <span class="hljs-number">1</span>), <span class="hljs-number">4</span>.r())
     }
 
     <span class="hljs-meta">@Test</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">testPairExtension</span><span class="hljs-params">()</span></span> {
