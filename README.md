@@ -148,7 +148,31 @@ Use the following attributes on elements that are converted to editors to adjust
   </code>
   ```
 
-  Or, you can make only a part of code read-only by placing it between `//sampleStart` and `//sampleEnd` markers.
+- `executable="incremental"`: Special mode where the code will be added to the code of the previous snippets, extracting `import`s and placing them at the top. Additionally this mode will wrap the executable code in a custom `main` function. So in the end what it will be executed will be something like this:
+
+```kotlin
+// All imports
+
+fun main(args: Array<String>) {println({
+  /*
+  All previous snippets code
+  */
+  /*
+  Your code here
+  */
+}())}
+
+```
+
+  ```html
+  <code executable="incremental">
+    /*
+    Your code here
+    */
+  </code>
+  ```
+
+  Also, you can make only a part of code read-only by placing it between `//sampleStart` and `//sampleEnd` markers.
   If you don't need this just use attribute `none-markers`.
   For adding hidden files: put files between `<textarea>` tag with class `hidden-dependency`.
 
