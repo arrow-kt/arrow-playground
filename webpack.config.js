@@ -10,13 +10,18 @@ module.exports =  (params = {}) => {
   const libraryName = 'KotlinPlayground';
   const webDemoUrl = params.webDemoUrl || 'https://try.arrow-kt.io:8080';
   const examplesPath = isServer ? '' : 'examples/';
+  const incrementalExamplesPath = isServer ? '' : 'incremental/';
 
   const config = {
     entry: {
       [mainEntryName]: './src/index',
-      REMOVE_ME: [
+      REMOVE_ME_EXAMPLES: [
         `!!file-loader?name=${examplesPath}examples.css!github-markdown-css/github-markdown.css`,
         `!!file-loader?name=${examplesPath}examples-highlight.css!highlight.js/styles/github.css`
+      ],
+      REMOVE_ME_INCREMENTAL: [
+        `!!file-loader?name=${incrementalExamplesPath}examples.css!github-markdown-css/github-markdown.css`,
+        `!!file-loader?name=${incrementalExamplesPath}examples-highlight.css!highlight.js/styles/github.css`
       ]
     },
 
@@ -67,6 +72,11 @@ module.exports =  (params = {}) => {
       new HtmlPlugin({
         template: 'examples.md',
         filename: isServer ? 'index.html' : 'examples/index.html',
+        inject: false
+      }),
+      new HtmlPlugin({
+        template: 'examples-incremental.md',
+        filename: isServer ? 'incremental/index.html' : 'incremental/index.html',
         inject: false
       }),
 
