@@ -11,7 +11,7 @@ import {countLines, THEMES, unEscapeString} from "../utils";
 import debounce from 'debounce';
 import escapeStringRegexp from "escape-string-regexp"
 import CompletionView from "../view/completion-view";
-import {processErrors, showJsException} from "../view/output-view";
+import {processErrors} from "../view/output-view";
 
 const SAMPLE_START = '//sampleStart';
 const SAMPLE_END = '//sampleEnd';
@@ -74,6 +74,9 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         }
       }
     });
+
+    const events = options.eventFunctions;
+    if (events && events.getInstance) events.getInstance(instance);
 
     return instance;
   }
@@ -235,6 +238,11 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     if (onCloseConsole) onCloseConsole();
   }
 
+  onExceptionClick(fileName, line) {
+    this.codemirror.setCursor(line - 1, 0);
+    this.codemirror.focus()
+  }
+
   execute() {
     const {
       onOpenConsole, targetPlatform, waitingForOutput, compilerVersion,
@@ -278,16 +286,17 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
           delete state.jsCode;
-          try {
-            let errors = state.errors.filter(error => error.severity === "ERROR");
-            if (errors.length > 0) {
-              state.output = processErrors(errors);
-            } else {
-              const codeOutput = this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform,
-                this.getNodeForMountIframe(targetPlatform), outputHeight);
-              if (codeOutput) {
+          let errors = state.errors.filter(error => error.severity === "ERROR");
+          if (errors.length > 0) {
+            state.output = processErrors(errors);
+            state.exception = null;
+            this.update(state);
+          } else {
+            this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform, this.getNodeForMountIframe(targetPlatform),
+              outputHeight, theme).then(output => {
+              if (output) {
                 state.openConsole = true;
-                state.output = `<span class="standard-output ${theme}">${codeOutput}</span>`;
+                state.output = output;
               } else {
                 state.output = "";
                 if (onCloseConsole) onCloseConsole();
@@ -296,14 +305,10 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
                 if (onOpenConsole) onOpenConsole();
                 state.openConsole = true;
               }
-            }
-          } catch (e) {
-            let exceptionOutput = showJsException(e);
-            state.output = `<span class="error-output">${exceptionOutput}</span>`;
-            console.error(e);
+              state.exception = null;
+              this.update(state);
+            });
           }
-          state.exception = null;
-          this.update(state);
         },
         () => this.update({waitingForOutput: false})
       )
@@ -557,9 +562,11 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     /**
      * If autoComplete => Getting completion on every key press on the editor.
      */
-    this.codemirror.on("keypress", debounce((cm) => {
-      if (this.state.autoComplete) {
-        CodeMirror.showHint(cm, CodeMirror.hint.kotlin, {completeSingle: false});
+    this.codemirror.on("keypress", debounce((cm, event) => {
+      if (event.keyCode !== KEY_CODES.R && !event.ctrlKey) {
+        if (this.state.autoComplete) {
+          CodeMirror.showHint(cm, CodeMirror.hint.kotlin, {completeSingle: false});
+        }
       }
     }, DEBOUNCE_TIME));
 

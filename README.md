@@ -2,7 +2,7 @@
 
 Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
 
-[Examples](/arrow-playground/examples/)
+[Examples](https://arrow-kt.github.io/arrow-playground/examples/)
 
 ## Preview
 
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 ### Host your own instance
 
-In the future, you will also be able to install Arrow-playground as dependency via NPM.
+Install arrow-playground as dependency via NPM.
 
 ```bash
 npm install arrow-playground -S
@@ -104,6 +104,16 @@ playground('.selector', eventFunctions)
 - `callback(targetNode, mountNode)` — Is called after playground's united.
  _targetNode_ — node with plain text before component initialization.
  _mountNode_  — new node with runnable editor.
+
+- `getInstance(instance)` - Getting playground state API.
+
+  ```js
+  instance.state      // playground attributes, dependencies and etc.
+  instance.nodes      // playground NodeElement.
+  instance.codemirror // editor specification.
+  instance.execute()  // function for executing code snippet.
+  instance.getCode()  // function for getting code from snippet.
+  ```
 
 ## Customizing editors
 
@@ -190,10 +200,10 @@ fun main(args: Array<String>) {println({
       println(cat.name)  
   //sampleEnd                 
   }
-  <textarea class="hidden-dependency">
-    package cat
-    class Cat(val name: String)
-  </textarea>
+    <textarea class="hidden-dependency">
+      package cat
+      class Cat(val name: String)
+    </textarea>
   </code>
   ```
   Also if you want to hide code snippet just set the attribute `folded-button` to `false` value.
