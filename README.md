@@ -115,6 +115,16 @@ playground('.selector', eventFunctions)
   instance.getCode()  // function for getting code from snippet.
   ```
 
+- `getInstance(instance)` - Getting playground state API.
+
+  ```js
+  instance.state      // playground attributes, dependencies and etc.
+  instance.nodes      // playground NodeElement.
+  instance.codemirror // editor specification.
+  instance.execute()  // function for executing code snippet.
+  instance.getCode()  // function for getting code from snippet.
+  ```
+
 ## Customizing editors
 
 
