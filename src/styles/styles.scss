@@ -49,7 +49,7 @@ $wt-color-azure: #167dff;
     margin-bottom: 0 !important;
   }
 
-  .CodeMirror-overlayscroll-horizontal div, .CodeMirror-overlayscroll-vertical div{
+  .CodeMirror-overlayscroll-horizontal div, .CodeMirror-overlayscroll-vertical div {
     display: none;
   }
 
@@ -224,7 +224,6 @@ $wt-color-azure: #167dff;
 }
 
 .code-output {
-  white-space: pre-wrap;
   font-family: $font-family-mono;
   overflow: auto;
   padding-left: 10px;
@@ -255,12 +254,11 @@ $wt-color-azure: #167dff;
   vertical-align: top;
 }
 
-.test-output {
+.test-passed {
   white-space: pre;
   color: $wt-color-seaweed;
   min-height: 1.4em;
   vertical-align: top;
-  margin-left: 20px;
 }
 
 .console-close {
@@ -284,34 +282,37 @@ $wt-color-azure: #167dff;
   background-color: $wt-color-tomato;
 }
 
-.test-fail {
+.test-fail, .test-error {
   color: $wt-color-tomato;
   min-height: 1.4em;
-  margin-left: 20px;
   vertical-align: top;
 }
 
-.test-fail.darcula {
-  color: $wt-color-tomato;
+.console-block {
+  display: flex;
 }
 
 .console-icon {
   margin-top: 2px;
+  padding-right: 20px;
   width: 15px;
   height: 15px;
-  position: absolute;
 }
 
 .console-icon.attention {
-  background-image: url('../img/attention.svg')
+  background: url('../img/attention.svg') no-repeat;
 }
 
-.console-icon.ok {
-  background-image: url('../img/ok.svg')
+.console-icon.passed {
+  background: url('../img/ok.svg') no-repeat;
 }
 
 .console-icon.fail {
-  background-image: url('../img/fail.svg')
+  background: url('../img/fail.svg') no-repeat;
+}
+
+.console-icon.error {
+  background: url('../img/fail.svg') no-repeat;
 }
 
 .test-time {
@@ -324,6 +325,14 @@ $wt-color-azure: #167dff;
 
 .stacktrace-element {
   margin-left: 20px;
+
+  .stacktrace-link {
+    color: $wt-color-azure;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .CodeMirror-foldgutter {
@@ -395,6 +404,7 @@ $wt-color-azure: #167dff;
   padding-left: 0 !important;
   border: 1px solid $wt-color-silver;
   border-radius: 4px;
+  list-style: none;
   position: absolute;
   background-color: #f7f7f7;
   overflow-y: hidden;
@@ -404,12 +414,11 @@ $wt-color-azure: #167dff;
 }
 
 .CodeMirror-hint {
-  white-space: pre;
   cursor: pointer;
-  border-radius: 0;
-  margin: 0;
-  padding-right: 0 !important;
-  line-height: 18px;
+  display: flex;
+  align-items: center;
+  padding-right: 5px;
+  padding-left: 5px;
 }
 
 li.CodeMirror-hint-active {
@@ -418,22 +427,18 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-hint .name {
-  float: left;
+  margin-right: 20px;
 }
 
 .CodeMirror-hint .tail {
-  float: right;
-  padding-left: 20px;
+  margin-left: auto;
   margin-right: 5px;
 }
 
 .CodeMirror-hint .icon {
-  margin-top: 1px;
-  margin-left: 2px;
   height: 16px;
   width: 16px;
-  float: left;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .icon {

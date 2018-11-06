@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlPlugin = require('html-webpack-plugin');
 
-module.exports =  (params = {}) => {
+module.exports = (params = {}) => {
   const isProduction = params.production;
   const env = isProduction ? 'production' : 'development';
   const mainEntryName = isProduction ? 'playground.min' : 'playground';
@@ -14,7 +14,7 @@ module.exports =  (params = {}) => {
 
   const config = {
     entry: {
-      [mainEntryName]: './src/index',
+      [mainEntryName]: ['./src/index'],
       REMOVE_ME_EXAMPLES: [
         `!!file-loader?name=${examplesPath}examples.css!github-markdown-css/github-markdown.css`,
         `!!file-loader?name=${examplesPath}examples-highlight.css!highlight.js/styles/github.css`
