@@ -267,11 +267,11 @@ The function any gets a predicate as an argument and returns true if there is at
 </code></pre>
 </div>
 <h2>Manual initialization</h2>
-<p>If you want to init Kotlin Playground manually - omit <code>data-selector</code> attribute and call it when it's needed:</p>
-<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/kotlin-playground@1"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<p>If you want to init Arrow Playground manually - omit <code>data-selector</code> attribute and call it when it's needed:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
 <span class="hljs-built_in">document</span>.addEventListener(<span class="hljs-string">'DOMContentLoaded'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  KotlinPlayground(<span class="hljs-string">'.kotlin-playground'</span>);
+  ArrowPlayground(<span class="hljs-string">'.arrow-playground'</span>);
 });
 </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
@@ -279,7 +279,7 @@ The function any gets a predicate as an argument and returns true if there is at
 Put your files between <code>&lt;textarea&gt;</code> tag with class <code>hidden-dependency</code>.</p>
 <p>Look at example:</p>
 <pre><code class="hljs language-html">
-<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-playground"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"arrow-playground"</span>&gt;</span>
   import cat.Cat
 
   fun main(args: Array<span class="hljs-tag">&lt;<span class="hljs-name">String</span>&gt;</span>) {
@@ -294,7 +294,7 @@ Put your files between <code>&lt;textarea&gt;</code> tag with class <code>hidden
   <span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 </code></pre>
-<p><button onclick="KotlinPlayground('.kotlin-code-2',{ onChange: (code)=> {console.log(code)}}); this.disabled = true; document.getElementById('kotlin-example').style.display = 'block';">Create</button></p>
+<p><button onclick="ArrowPlayground('.kotlin-code-2',{ onChange: (code)=> {console.log(code)}}); this.disabled = true; document.getElementById('kotlin-example').style.display = 'block';">Create</button></p>
 <div id="kotlin-example" class="kotlin-code-2" style="display: none;">
 <pre><code class="hljs language-text">import cat.Cat
 

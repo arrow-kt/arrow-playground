@@ -135,7 +135,7 @@ export default class ExecutableCode {
     this.targetNodeStyle = targetNodeStyle;
     this.view = view;
 
-    targetNode.KotlinPlayground = this;
+    targetNode.ArrowPlayground = this;
     if (eventFunctions && eventFunctions.callback) eventFunctions.callback(targetNode, mountNode);
   }
 
@@ -229,7 +229,7 @@ export default class ExecutableCode {
     }
 
     targetNode.removeAttribute(INITED_ATTRIBUTE_NAME);
-    delete targetNode.KotlinPlayground;
+    delete targetNode.ArrowPlayground;
   }
 
   isInited() {

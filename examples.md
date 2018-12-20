@@ -328,13 +328,13 @@ fun main(args: Array<String>) {
 
 ## Manual initialization
 
-If you want to init Kotlin Playground manually - omit `data-selector` attribute and call it when it's needed:
+If you want to init Arrow Playground manually - omit `data-selector` attribute and call it when it's needed:
 
 ```html
-<script src="https://unpkg.com/kotlin-playground@1"></script>
+<script src="https://unpkg.com/arrow-playground@1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  KotlinPlayground('.kotlin-playground');
+  ArrowPlayground('.arrow-playground');
 });
 </script>
 ```
@@ -346,7 +346,7 @@ Look at example:
 
 ```html
 
-<div class="kotlin-playground">
+<div class="arrow-playground">
   import cat.Cat
 
   fun main(args: Array<String>) {
@@ -362,7 +362,7 @@ Look at example:
 </div>
 ```
 
-<button onclick="KotlinPlayground('.kotlin-code-2',{ onChange: (code)=> {console.log(code)}}); this.disabled = true; document.getElementById('kotlin-example').style.display = 'block';">Create</button>
+<button onclick="ArrowPlayground('.kotlin-code-2',{ onChange: (code)=> {console.log(code)}}); this.disabled = true; document.getElementById('kotlin-example').style.display = 'block';">Create</button>
 
 <div id="kotlin-example" class="kotlin-code-2" style="display: none;">
 
