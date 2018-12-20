@@ -216,6 +216,10 @@ $wt-color-azure: #167dff;
   position: relative;
 }
 
+.js-code-output-executor.darcula {
+  border-top: 1px solid grey;
+}
+
 .output-wrapper {
   border-bottom: 1px solid $wt-color-athens;
   min-height: 60px;
@@ -225,7 +229,6 @@ $wt-color-azure: #167dff;
 
 .output-wrapper.darcula {
   background-color: $darcula-console-color;
-  border-top: 1px solid grey;
   color: $wt-color-silver;
 }
 
@@ -469,9 +472,10 @@ li.CodeMirror-hint-active {
 
 div[label]:hover:after {
   content: attr(label);
-  display: inline-flex;
   padding: 0.25rem 0.5rem;
   white-space: pre;
+  margin-top: -1rem;
+  display: inline-flex;
   background: $warning-color;
   border-radius: 3px;
   margin-left: 1rem;

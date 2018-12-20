@@ -271,7 +271,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         onTestPassed).then(
         state => {
           state.waitingForOutput = false;
-          if (state.output) {
+          if (state.output || state.exception) {
             state.openConsole = true;
           } else {
             if (onCloseConsole) onCloseConsole();
@@ -291,6 +291,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
           let errors = state.errors.filter(error => error.severity === "ERROR");
           if (errors.length > 0) {
             state.output = processErrors(errors);
+            state.openConsole = true;
             state.exception = null;
             this.update(state);
           } else {

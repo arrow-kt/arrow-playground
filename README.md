@@ -1,3 +1,4 @@
+[![NPM version](https://img.shields.io/npm/v/arrow-playground.svg)](https://www.npmjs.com/package/arrow-playground)
 # Arrow Playground
 
 Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
@@ -30,6 +31,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 ```
+
+You can also overwrite the server where the code will be sent to be compiled and analyzed (for example if you host a server instance that includes your own Kotlin libraries). For that you can set the `data-server` attibute, like this:
+
+```html
+<script src="https://unpkg.com/kotlin-playground@1"
+        data-selector="code"
+        data-server="https://my-kotlin-playground-server">
+</script>
+```
+
+Fork & clone [server repository](https://github.com/JetBrains/kotlin-web-demo).
 
 ### Host your own instance
 
@@ -65,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 2) [Kotlin Playground Coursera plugin](https://github.com/AlexanderPrendota/kotlin-playground-coursera-plugin) — Allows embedding interactive Kotlin playground for [coursera](https://www.coursera.org/) lessons.
 -->
 
-### Events
+### Options
 
-Kotlin Playground supports several events on additional parameter on initialisation;
+Kotlin Playground supports several events, and also server URL overwriting passing an additional `options` parameter on initialisation.
 
 For example:
 ```js
@@ -79,13 +91,14 @@ function onTestPassed() {
    console.log("Tests passed!");
 }
 
-const eventFunctions = {
+const options = {
+  server: 'https://my-kotlin-playground-server',
   onChange: onChange(code),
   onTestPassed: onTestPassed,
   callback: callback(targetNode, mountNode)
 };
 
-playground('.selector', eventFunctions)
+playground('.selector', options)
 
 ```
 
@@ -107,16 +120,6 @@ playground('.selector', eventFunctions)
 - `callback(targetNode, mountNode)` — Is called after playground's united.
  _targetNode_ — node with plain text before component initialization.
  _mountNode_  — new node with runnable editor.
-
-- `getInstance(instance)` - Getting playground state API.
-
-  ```js
-  instance.state      // playground attributes, dependencies and etc.
-  instance.nodes      // playground NodeElement.
-  instance.codemirror // editor specification.
-  instance.execute()  // function for executing code snippet.
-  instance.getCode()  // function for getting code from snippet.
-  ```
 
 - `getInstance(instance)` - Getting playground state API.
 
@@ -237,7 +240,7 @@ fun main(args: Array<String>) {println({
 
 - `mode="kotlin|js|java|groovy|xml|c|shell|swift|obj-c"`: Different languages styles. Runnable snippets only with `kotlin`. Default to `kotlin`.
 
-- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io:8080/kotlinServer?type=getKotlinVersions)
+- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions)
 
 - `highlight-on-fly="true|false"`: Errors and warnings check for each change in the editor. Defaults to `false`.
 
