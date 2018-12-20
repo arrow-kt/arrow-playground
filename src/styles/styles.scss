@@ -20,6 +20,7 @@ $wt-color-seaweed: #4dbb5f;
 $wt-color-silver: #afb1b3;
 $wt-color-dove: #696969;
 $wt-color-code: #3c3f43;
+$warning-color: rgb(254, 255, 222);
 $wt-color-athens: #eaeaec;
 $wt-color-azure: #167dff;
 
@@ -30,6 +31,7 @@ $wt-color-azure: #167dff;
 
 .executable-fragment {
   border: 1px solid $wt-color-athens;
+  border-bottom-width: 0;
 }
 
 .hidden-dependency {
@@ -110,9 +112,8 @@ $wt-color-azure: #167dff;
   height: 20px;
   width: 16px;
   cursor: pointer;
-  background: url("../img/run.svg");
   background-size: cover;
-  background-repeat: no-repeat;
+  background: url("../img/run.svg") no-repeat;
 
   &._disabled {
     cursor: default;
@@ -210,8 +211,13 @@ $wt-color-azure: #167dff;
   padding-bottom: 2px;
 }
 
-.output-wrapper {
+.js-code-output-executor {
   border-top: 1px solid $wt-color-athens;
+  position: relative;
+}
+
+.output-wrapper {
+  border-bottom: 1px solid $wt-color-athens;
   min-height: 60px;
   font-size: 14px;
   background-color: white;
@@ -263,11 +269,10 @@ $wt-color-azure: #167dff;
 
 .console-close {
   position: absolute;
-  right: 1px;
-  margin-top: 1px;
+  right: 0;
   width: 16px;
   height: 16px;
-  background: $wt-color-silver url('../img/close-console-icon.svg');
+  background: $wt-color-silver url('../img/close-console-icon.svg') no-repeat;
 }
 
 .console-close.darcula {
@@ -397,9 +402,6 @@ $wt-color-azure: #167dff;
   }
 }
 
-.executable-fragment-wrapper {
-}
-
 .CodeMirror-hints {
   padding-left: 0 !important;
   border: 1px solid $wt-color-silver;
@@ -463,4 +465,16 @@ li.CodeMirror-hint-active {
 
 .icon.property {
   background: url("https://try.kotlinlang.org/static/images/completion_property.svg");
+}
+
+div[label]:hover:after {
+  content: attr(label);
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  white-space: pre;
+  background: $warning-color;
+  border-radius: 3px;
+  margin-left: 1rem;
+  color: black;
+  border: 1px solid $wt-color-code;
 }

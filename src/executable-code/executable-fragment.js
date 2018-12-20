@@ -27,7 +27,7 @@ const WRAPPING_FUNCTION_TOP_LINE = "\nfun main(args: Array<String>) {println({";
 const WRAPPING_FUNCTION_BOTTOM_LINE = "}())}";
 
 const SELECTORS = {
-  CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-canvas-placeholder",
+  CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-executor",
   FOLD_BUTTON: ".fold-button",
   UNMODIFIABLE_LINE_DARK: "unmodifiable-line-dark",
   UNMODIFIABLE_LINE: "unmodifiable-line",
@@ -38,7 +38,8 @@ const SELECTORS = {
   FOLD_GUTTER: "CodeMirror-foldgutter",
   ERROR_GUTTER: "ERRORgutter",
   ERROR_AND_WARNING_GUTTER: "errors-and-warnings-gutter",
-  BACKGROUND: "background"
+  BACKGROUND: "background",
+  LABEL: "label"
 };
 
 export default class ExecutableFragment extends ExecutableCodeTemplate {
@@ -234,7 +235,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     if (targetPlatform === TargetPlatform.CANVAS) {
       this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(TargetPlatform.CANVAS));
     }
-    this.update({output: "", openConsole: false});
+    this.update({output: "", openConsole: false, exception: null});
     if (onCloseConsole) onCloseConsole();
   }
 
@@ -246,7 +247,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
   execute() {
     const {
       onOpenConsole, targetPlatform, waitingForOutput, compilerVersion,
-      args, theme, hiddenDependencies, onTestPassed, onCloseConsole, jsLibs, outputHeight
+      args, theme, hiddenDependencies, onTestPassed, onCloseConsole, jsLibs, outputHeight, getJsCode
     } = this.state;
     if (waitingForOutput) {
       return
@@ -286,6 +287,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
           delete state.jsCode;
+          if (getJsCode) getJsCode(jsCode);
           let errors = state.errors.filter(error => error.severity === "ERROR");
           if (errors.length > 0) {
             state.output = processErrors(errors);
@@ -427,12 +429,11 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         (this.codemirror.lineInfo(interval.start.line).gutterMarkers == null)) {
         const gutter = document.createElement("div");
         gutter.className = severity + SELECTORS.GUTTER;
-        gutter.title = errorMessage;
-
+        gutter.setAttribute(SELECTORS.LABEL, errorMessage);
         this.codemirror.setGutterMarker(interval.start.line, SELECTORS.ERROR_AND_WARNING_GUTTER, gutter)
       } else {
         const gutter = this.codemirror.lineInfo(interval.start.line).gutterMarkers[SELECTORS.ERROR_AND_WARNING_GUTTER];
-        gutter.title += `\n${errorMessage}`;
+        gutter.setAttribute(SELECTORS.LABEL, gutter.getAttribute(SELECTORS.LABEL) + `\n${errorMessage}`);
         if (gutter.className.indexOf(SELECTORS.ERROR_GUTTER) === -1) {
           gutter.className = severity + SELECTORS.GUTTER
         }

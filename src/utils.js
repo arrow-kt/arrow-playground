@@ -83,7 +83,7 @@ export function insertAfter(newNode, referenceNode) {
  * @param string
  * @returns {*}
  */
-export function processingHtmlTags(string) {
+export function processingHtmlBrackets(string) {
   const tagsToReplace = {
     "&lt;": "<",
     "&gt;": ">"
