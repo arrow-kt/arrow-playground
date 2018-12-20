@@ -1,6 +1,6 @@
 {
   "name": "arrow-playground",
-  "version": "1.18.0",
+  "version": "1.18.1",
   "description": "Self-contained component to embed in websites for running Kotlin, Arrow library aware, code",
   "keywords": [
     "kotlin",
@@ -31,6 +31,7 @@
     "debounce": "^1.1.0",
     "deepmerge": "^1.5.0",
     "es6-map": "^0.1.5",
+    "es6-promise": "^4.2.5",
     "es6-set": "^0.1.5",
     "escape-html": "^1.0.3",
     "escape-string-regexp": "^1.0.5",
