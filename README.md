@@ -27,7 +27,7 @@ Or, if you need to separate process of loading/conversion, omit the `data-select
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  KotlinPlayground('.code-blocks-selector');
+  ArrowPlayground('.code-blocks-selector');
 });
 </script>
 ```
@@ -35,13 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
 You can also overwrite the server where the code will be sent to be compiled and analyzed (for example if you host a server instance that includes your own Kotlin libraries). For that you can set the `data-server` attibute, like this:
 
 ```html
-<script src="https://unpkg.com/kotlin-playground@1"
+<script src="https://unpkg.com/arrow-playground@1"
         data-selector="code"
-        data-server="https://my-kotlin-playground-server">
+        data-server="https://my-arrow-playground-server">
 </script>
 ```
 
-Fork & clone [server repository](https://github.com/JetBrains/kotlin-web-demo).
+Fork & clone [server repository](https://github.com/arrow-kt/try.arrow-kt.io).
 
 ### Host your own instance
 
@@ -92,7 +92,7 @@ function onTestPassed() {
 }
 
 const options = {
-  server: 'https://my-kotlin-playground-server',
+  server: 'https://my-arrow-playground-server',
   onChange: onChange(code),
   onTestPassed: onTestPassed,
   callback: callback(targetNode, mountNode)
