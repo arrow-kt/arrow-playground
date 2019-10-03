@@ -6,10 +6,9 @@ import 'monkberry-events';
 import ExecutableCodeTemplate from './executable-fragment.monk';
 import WebDemoApi from '../webdemo-api';
 import TargetPlatform from "../target-platform";
-import getJsExecutor from "../js-executor"
-import {countLines, THEMES, unEscapeString} from "../utils";
+import JsExecutor from "../js-executor"
+import {countLines, escapeRegExp, THEMES, unEscapeString} from "../utils";
 import debounce from 'debounce';
-import escapeStringRegexp from "escape-string-regexp"
 import CompletionView from "../view/completion-view";
 import {processErrors} from "../view/output-view";
 
@@ -27,7 +26,7 @@ const WRAPPING_FUNCTION_TOP_LINE = "\nfun main(args: Array<String>) {println({";
 const WRAPPING_FUNCTION_BOTTOM_LINE = "}())}";
 
 const SELECTORS = {
-  CANVAS_PLACEHOLDER_OUTPUT: ".js-code-output-executor",
+  JS_CODE_OUTPUT_EXECUTOR: ".js-code-output-executor",
   FOLD_BUTTON: ".fold-button",
   UNMODIFIABLE_LINE_DARK: "unmodifiable-line-dark",
   UNMODIFIABLE_LINE: "unmodifiable-line",
@@ -91,7 +90,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     let hasMarkers = false;
     let platform = state.targetPlatform;
     if (state.compilerVersion && (platform === TargetPlatform.JS || platform === TargetPlatform.CANVAS)) {
-      this.jsExecutor = getJsExecutor(state.compilerVersion, state.jsLibs, this.getNodeForMountIframe(platform), platform)
+      this.jsExecutor = new JsExecutor(state.compilerVersion);
     }
 
     if (state.code) {
@@ -189,8 +188,8 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
   markPlaceHolders() {
     let taskRanges = this.getTaskRanges();
     this.codemirror.setValue(this.codemirror.getValue()
-      .replace(new RegExp(escapeStringRegexp(MARK_PLACEHOLDER_OPEN), 'g'), "")
-      .replace(new RegExp(escapeStringRegexp(MARK_PLACEHOLDER_CLOSE), 'g'), ""));
+      .replace(new RegExp(escapeRegExp(MARK_PLACEHOLDER_OPEN), 'g'), "")
+      .replace(new RegExp(escapeRegExp(MARK_PLACEHOLDER_CLOSE), 'g'), ""));
 
     taskRanges.forEach(task => {
       this.codemirror.markText({line: task.line, ch: task.ch}, {line: task.line, ch: task.ch + task.length}, {
@@ -231,10 +230,10 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
   }
 
   onConsoleCloseButtonEnter() {
-    const {targetPlatform, jsLibs, onCloseConsole} = this.state;
-    if (targetPlatform === TargetPlatform.CANVAS) {
-      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(TargetPlatform.CANVAS));
-    }
+    const {jsLibs, onCloseConsole, targetPlatform } = this.state;
+    // creates a new iframe and removes the old one, thereby stops execution of any running script
+    if (targetPlatform === TargetPlatform.CANVAS || targetPlatform === TargetPlatform.JS)
+      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe());
     this.update({output: "", openConsole: false, exception: null});
     if (onCloseConsole) onCloseConsole();
   }
@@ -246,8 +245,8 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
   execute() {
     const {
-      onOpenConsole, targetPlatform, waitingForOutput, compilerVersion,
-      args, theme, hiddenDependencies, onTestPassed, onCloseConsole, jsLibs, outputHeight, getJsCode
+      onOpenConsole, targetPlatform, waitingForOutput, compilerVersion, onRun, onError,
+      args, theme, hiddenDependencies, onTestPassed, onTestFailed, onCloseConsole, jsLibs, outputHeight, getJsCode
     } = this.state;
     if (waitingForOutput) {
       return
@@ -259,8 +258,8 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
     const code = this.state.incremental ? this.getIncModeCode() : this.getCode();
 
-    //open when waitingForOutput=true
-    if (onOpenConsole) onOpenConsole();
+    if (onOpenConsole) onOpenConsole(); //open when waitingForOutput=true
+    if (onRun) onRun();
     if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
       WebDemoApi.executeKotlinCode(
         code,
@@ -268,7 +267,8 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         targetPlatform, args,
         theme,
         hiddenDependencies,
-        onTestPassed).then(
+        onTestPassed,
+        onTestFailed).then(
         state => {
           state.waitingForOutput = false;
           if (state.output || state.exception) {
@@ -276,12 +276,13 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
           } else {
             if (onCloseConsole) onCloseConsole();
           }
+          if ((state.errors.length > 0 || state.exception) && onError) onError();
           this.update(state);
         },
         () => this.update({waitingForOutput: false})
       )
     } else {
-      if (targetPlatform === TargetPlatform.CANVAS) this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe(targetPlatform));
+      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe());
       WebDemoApi.translateKotlinToJs(code, compilerVersion, targetPlatform, args, hiddenDependencies).then(
         state => {
           state.waitingForOutput = false;
@@ -290,13 +291,14 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
           if (getJsCode) getJsCode(jsCode);
           let errors = state.errors.filter(error => error.severity === "ERROR");
           if (errors.length > 0) {
+            if (onError) onError();
             state.output = processErrors(errors);
             state.openConsole = true;
             state.exception = null;
             this.update(state);
           } else {
-            this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform, this.getNodeForMountIframe(targetPlatform),
-              outputHeight, theme).then(output => {
+            this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform,
+              outputHeight, theme, onError).then(output => {
               if (output) {
                 state.openConsole = true;
                 state.output = output;
@@ -323,10 +325,8 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
    * @param {TargetPlatform} platform
    * @return {HTMLElement}
    */
-  getNodeForMountIframe(platform) {
-    return platform === TargetPlatform.JS
-      ? document.body
-      : this.nodes[0].querySelector(SELECTORS.CANVAS_PLACEHOLDER_OUTPUT);
+  getNodeForMountIframe() {
+    return this.nodes[0].querySelector(SELECTORS.JS_CODE_OUTPUT_EXECUTOR);
   }
 
   getImportLines() {
@@ -474,6 +474,11 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       codemirrorOptions.cursorBlinkRate = -1;
     }
 
+    this.codemirror = CodeMirror.fromTextArea(textarea, codemirrorOptions);
+
+    // don't need to create additional editor options in readonly mode.
+    if (readOnly) return;
+
     /**
      * Register own helper for autocomplete.
      * Getting completions from try.kotlinlang.org.
@@ -527,8 +532,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       CodeMirror.showHint(cm, CodeMirror.hint.kotlin);
     };
 
-    this.codemirror = CodeMirror.fromTextArea(textarea, codemirrorOptions);
-
     if (window.navigator.appVersion.indexOf("Mac") !== -1) {
       this.codemirror.setOption("extraKeys", {
         "Cmd-Alt-L": "indentAuto",
@@ -572,7 +575,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
      */
     this.codemirror.on("keypress", debounce((cm, event) => {
       if (event.keyCode !== KEY_CODES.R && !event.ctrlKey) {
-        if (this.state.autoComplete) {
+        if (this.state.autoComplete && !cm.state.completionActive) {
           CodeMirror.showHint(cm, CodeMirror.hint.kotlin, {completeSingle: false});
         }
       }
@@ -602,6 +605,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     this.jsExecutor = false;
     this.state = null;
     this.codemirror.toTextArea();
+    this.off();
     this.remove();
   }
 }

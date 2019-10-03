@@ -17,14 +17,14 @@
 <h1>Arrow Playground demo</h1>
 <h2>Automatic initialization</h2>
 <p>Insert a <code>&lt;script&gt;</code> element into your page and specify what elements should be converted in its <code>data-selector</code> attribute.</p>
-<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span> <span class="hljs-attr">data-selector</span>=<span class="hljs-string">".kotlin-code"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span> <span class="hljs-attr">data-selector</span>=<span class="hljs-string">".kotlin-code"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
 <p>For instance following block of Kotlin code:</p>
 <pre><code class="hljs language-txt">class Contact(val id: Int, var email: String)
 
 fun main(args: Array&lt;String&gt;) {
     val contact = Contact(1, &quot;mary@gmail.com&quot;)
-    println(contact.id)                   
+    println(contact.id)
 }
 </code></pre>
 <p>Turns into:</p>
@@ -266,9 +266,21 @@ The function any gets a predicate as an argument and returns true if there is at
 <span class="hljs-comment">//sampleEnd</span>
 </code></pre>
 </div>
+<p>Use <code>data-js-libs</code> with a comma-separated list of URLs to specify additional javascript libraries to load.</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"kotlin-code"</span> <span class="hljs-attr">data-target-platform</span>=<span class="hljs-string">"js"</span> <span class="hljs-attr">data-js-libs</span>=<span class="hljs-string">"https://unpkg.com/moment@2"</span>&gt;</span>
+</code></pre>
+<div class="kotlin-code" data-target-platform="js" data-js-libs="https://unpkg.com/moment@2">
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">external</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">moment</span><span class="hljs-params">()</span></span>: <span class="hljs-keyword">dynamic</span>
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-keyword">val</span> startOfDay = moment().startOf(<span class="hljs-string">"day"</span>).fromNow()
+    println(<span class="hljs-string">"The start of the day was <span class="hljs-variable">$startOfDay</span>"</span>)
+}
+</code></pre>
+</div>
 <h2>Manual initialization</h2>
-<p>If you want to init Arrow Playground manually - omit <code>data-selector</code> attribute and call it when it's needed:</p>
-<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<p>If you want to init Kotlin Playground manually - omit <code>data-selector</code> attribute and call it when it's needed:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/arrow-playground@1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
 <span class="hljs-built_in">document</span>.addEventListener(<span class="hljs-string">'DOMContentLoaded'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   ArrowPlayground(<span class="hljs-string">'.arrow-playground'</span>);
@@ -285,8 +297,8 @@ Put your files between <code>&lt;textarea&gt;</code> tag with class <code>hidden
   fun main(args: Array<span class="hljs-tag">&lt;<span class="hljs-name">String</span>&gt;</span>) {
   //sampleStart
       val cat = Cat("Kitty")
-      println(cat.name)  
-  //sampleEnd                 
+      println(cat.name)
+  //sampleEnd
   }
   <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"hidden-dependency"</span>&gt;</span>
     package cat

@@ -13,6 +13,7 @@ module.exports = (params = {}) => {
   const incrementalExamplesPath = isServer ? '' : 'incremental/';
 
   const config = {
+    mode: env,
     entry: {
       [mainEntryName]: ['./src/index'],
       REMOVE_ME_EXAMPLES: [

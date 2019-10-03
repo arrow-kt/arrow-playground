@@ -110,6 +110,8 @@ playground('.selector', options)
 
 - `onTestPassed` — Is called after all tests passed. Use for target platform `junit`.
 
+- `onTestFailed` — Is called after all tests failed. Use for target platform `junit`.
+
 - `onCloseConsole` — Is called after the console's closed.
 
 - `onOpenConsole` — Is called after the console's opened.
@@ -242,9 +244,9 @@ fun main(args: Array<String>) {println({
 
 - `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions)
 
-- `highlight-on-fly="true|false"`: Errors and warnings check for each change in the editor. Defaults to `false`.
+- `data-autocomplete="true|false"`: Get completion on every key press. If `false` => Press ctrl-space to activate autocompletion. Defaults to `false`.
 
-- `autocomplete="true|false"`: Get completion on every key press. If `false` => Press ctrl-space to activate autocompletion. Defaults to `false`.
+- `highlight-on-fly="true|false"`: Errors and warnings check for each change in the editor. Defaults to `false`.
 
 - `indent="4"`: How many spaces a block should be indented. Defaults to `4`.
 
@@ -268,6 +270,6 @@ fun main(args: Array<String>) {println({
 
 ## Develop and contribute
 
-1. Install required dependencies `npm install`.
-2. `npm start` to start local development server at http://localhost:9000, or `npm start -- --env.webDemoUrl=http://localhost:6666` if you want a different compiler host URL.
-3. `npm run build` to create production bundles.
+1. Install required dependencies `yarn install`.
+2. `yarn start` to start local development server at http://localhost:9000.
+3. `yarn run build` to create production bundles.

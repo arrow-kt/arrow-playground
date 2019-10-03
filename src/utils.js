@@ -1,5 +1,4 @@
 import merge from 'deepmerge';
-import convertCase from 'to-case';
 import defaultConfig from './config';
 
 /**
@@ -28,23 +27,46 @@ export function arrayFrom(arrayLike) {
 }
 
 /**
+ * Convert first letter of string in upper case`
+ * @param string
+ * @returns {string}
+ */
+export function capitalize(string) {
+  if (typeof string !== 'string') return '';
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/**
+ * Convert dashed string to camelCase`
+ * @param string
+ * @returns {string}
+ */
+export function dashToCamel(string) {
+  return string
+    .split('-')
+    .map((el, i) => {
+      if (!i) return el;
+      return capitalize(el);
+    })
+    .join('');
+}
+
+/**
  * @param {Element} element
  * @param {boolean} mergeWithDefaults
  * @return {Object<string, string>}
  */
 export function getConfigFromElement(element, mergeWithDefaults = false) {
-  if (!element.attributes) {
+  if (!element || !element.attributes) {
     return {};
   }
 
   const attrs = arrayFrom(element.attributes)
-    .map((attr) => {
-      return {name: attr.name, value: attr.value}
-    })
-    .filter(option => option.name.indexOf('data-') !== -1)
-    .reduce((acc, attr) => {
-      const name = convertCase.camel(attr.name.replace('data-', ''));
-      acc[name] = attr.value;
+    .reduce((acc, {name, value}) => {
+      if (name.indexOf('data-') === -1) return acc;
+
+      const className = dashToCamel(name.replace('data-', ''));
+      acc[className] = value;
       return acc;
     }, {});
 
@@ -62,12 +84,10 @@ export function getCurrentScript() {
 }
 
 /**
- * @return {boolean}
+ * Use instead of @escape-string-regexp
  */
-export function isEmbeddedFromCdn() {
-  const currentScript = getCurrentScript();
-  const src = currentScript.src ? currentScript.src : null;
-  return src && src.indexOf(__CDN_URL__) !== -1;
+export function escapeRegExp(str) {
+  return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
 /**

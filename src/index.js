@@ -16,6 +16,9 @@ polyfill();
  * @property {string} server
  * @property {Function} onChange
  * @property {Function} onTestPassed
+ * @property {Function} onTestFailed
+ * @property {Function} onRun
+ * @property {Function} onError
  * @property {Function} onConsoleOpen
  * @property {Function} onConsoleClose
  * @property {Function} callBack
