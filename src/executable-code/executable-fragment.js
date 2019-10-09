@@ -245,7 +245,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
   execute() {
     const {
-      onOpenConsole, targetPlatform, waitingForOutput, compilerVersion, onRun, onError,
+      onOpenConsole, targetPlatform, waitingForOutput, arrowVersion, compilerVersion, onRun, onError,
       args, theme, hiddenDependencies, onTestPassed, onTestFailed, onCloseConsole, jsLibs, outputHeight, getJsCode
     } = this.state;
     if (waitingForOutput) {
@@ -263,6 +263,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
       WebDemoApi.executeKotlinCode(
         code,
+        arrowVersion,
         compilerVersion,
         targetPlatform, args,
         theme,
@@ -283,7 +284,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       )
     } else {
       this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe());
-      WebDemoApi.translateKotlinToJs(code, compilerVersion, targetPlatform, args, hiddenDependencies).then(
+      WebDemoApi.translateKotlinToJs(code, arrowVersion, compilerVersion, targetPlatform, args, hiddenDependencies).then(
         state => {
           state.waitingForOutput = false;
           const jsCode = state.jsCode;
@@ -499,6 +500,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       WebDemoApi.getAutoCompletion(
         code,
         currentCursor,
+        this.state.arrowVersion,
         this.state.compilerVersion,
         this.state.targetPlatform,
         this.state.hiddenDependencies,
@@ -564,6 +566,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
       if (onFlyHighLight) {
         WebDemoApi.getHighlight(
           this.getCode(),
+          arrowversion,
           compilerVersion,
           targetPlatform,
           hiddenDependencies).then(data => this.showDiagnostics(data))

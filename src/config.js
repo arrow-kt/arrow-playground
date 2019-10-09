@@ -20,6 +20,9 @@ export const API_URLS = {
   get COMPLETE() {
     return `${this.server}/kotlinServer?type=complete&runConf=`;
   },
+  get ARROW_VERSIONS() {
+    return `${this.server}/kotlinServer?type=getArrowVersions`;
+  },
   get VERSIONS() {
     return `${this.server}/kotlinServer?type=getKotlinVersions`;
   },

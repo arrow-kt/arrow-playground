@@ -138,7 +138,16 @@ playground('.selector', options)
 
 Use the following attributes on elements that are converted to editors to adjust their behavior.
 
-- `data-version`: Target Kotlin [compiler version](https://try.kotlinlang.org/kotlinServer?type=getKotlinVersions):
+- `data-arrow-version`: Target [Arrow version](https://try.arrow-kt.io:80/kotlinServer?type=getArrowVersions):
+
+   ```html
+    <code data-arrow-version="0.10.0">
+    /*
+    Your code here
+    */
+    </code>
+    ```
+- `data-version`: Target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions):
 
    ```html
     <code data-version="1.0.7">

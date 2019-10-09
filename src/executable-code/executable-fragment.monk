@@ -45,7 +45,8 @@
     {% if (executable) %}
         <div class="compiler-info">
             <span>Target platform: {{ targetPlatform.printableName }}</span>
-            <span>Running on kotlin v. {{ compilerVersion }}</span>
+            <span>Running on Arrow v. {{ arrowVersion }}</span>
+            <span>Running on Kotlin v. {{ compilerVersion }}</span>
         </div>
     {% endif %}
 

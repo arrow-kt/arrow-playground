@@ -28,6 +28,24 @@ export default class WebDemoApi {
   /**
    * @return {Promise<Array<KotlinVersion>>}
    */
+  static getArrowVersions() {
+    if ('arrowVersions' in CACHE) {
+      return Promise.resolve(CACHE.arrowVersions);
+    }
+
+    return fetch(API_URLS.ARROW_VERSIONS)
+      .then(response => response.json())
+      .then(versions => {
+        CACHE.arrowVersions = versions;
+        return versions;
+      }).catch(() => {
+        return null
+      });
+  }
+
+  /**
+   * @return {Promise<Array<KotlinVersion>>}
+   */
   static getCompilerVersions() {
     if ('compilerVersions' in CACHE) {
       return Promise.resolve(CACHE.compilerVersions);
@@ -47,14 +65,15 @@ export default class WebDemoApi {
    * Request on translation Kotlin code to JS code
    *
    * @param code            - string
+   * @param arrowVersion    - string Arrow version
    * @param compilerVersion - string kotlin compiler
    * @param platform        - TargetPlatform
    * @param args            - command line arguments
    * @param hiddenDependencies   - read only additional files
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
-  static translateKotlinToJs(code, compilerVersion, platform, args, hiddenDependencies) {
-    return executeCode(API_URLS.COMPILE, code, compilerVersion, platform, args, hiddenDependencies).then(function (data) {
+  static translateKotlinToJs(code, arrowVersion, compilerVersion, platform, args, hiddenDependencies) {
+    return executeCode(API_URLS.COMPILE, code, arrowVersion, compilerVersion, platform, args, hiddenDependencies).then(function (data) {
       let output = "";
       let errorsAndWarnings = flatten(Object.values(data.errors));
       return {
@@ -69,6 +88,7 @@ export default class WebDemoApi {
    * Request on execute Kotlin code.
    *
    * @param code            - string
+   * @param arrowVersion    - string Arrow version
    * @param compilerVersion - string kotlin compiler
    * @param platform        - TargetPlatform
    * @param args            - command line arguments
@@ -78,8 +98,8 @@ export default class WebDemoApi {
    * @param hiddenDependencies   - read only additional files
    * @returns {*|PromiseLike<T>|Promise<T>}
    */
-  static executeKotlinCode(code, compilerVersion, platform, args, theme, hiddenDependencies, onTestPassed, onTestFailed) {
-    return executeCode(API_URLS.COMPILE, code, compilerVersion, platform, args, hiddenDependencies).then(function (data) {
+  static executeKotlinCode(code, arrowVersion, compilerVersion, platform, args, theme, hiddenDependencies, onTestPassed, onTestFailed) {
+    return executeCode(API_URLS.COMPILE, code, arrowVersion, compilerVersion, platform, args, hiddenDependencies).then(function (data) {
       let output = "";
       let errorsAndWarnings = flatten(Object.values(data.errors));
       let errors = errorsAndWarnings.filter(error => error.severity === "ERROR");
@@ -114,13 +134,14 @@ export default class WebDemoApi {
    *
    * @param code - string code
    * @param cursor - cursor position in code
+   * @param arrowVersion    - string Arrow version
    * @param compilerVersion - string kotlin compiler
    * @param hiddenDependencies   - read only additional files
    * @param platform - kotlin platform {@see TargetPlatform}
    * @param callback
    */
-  static getAutoCompletion(code, cursor, compilerVersion, platform, hiddenDependencies, callback) {
-    executeCode(API_URLS.COMPLETE, code, compilerVersion, platform, "", hiddenDependencies, cursor)
+  static getAutoCompletion(code, cursor, arrowVersion, compilerVersion, platform, hiddenDependencies, callback) {
+    executeCode(API_URLS.COMPLETE, code, arrowVersion, compilerVersion, platform, "", hiddenDependencies, cursor)
       .then(data => {
         callback(data);
       })
@@ -130,24 +151,26 @@ export default class WebDemoApi {
    * Request for getting errors of current file
    *
    * @param code - string code
+   * @param arrowVersion    - string Arrow version
    * @param compilerVersion - string kotlin compiler
    * @param platform - kotlin platform {@see TargetPlatform}
    * @param hiddenDependencies   - read only additional files
    * @return {*|PromiseLike<T>|Promise<T>}
    */
-  static getHighlight(code, compilerVersion, platform, hiddenDependencies) {
-    return executeCode(API_URLS.HIGHLIGHT, code, compilerVersion, platform, "", hiddenDependencies)
+  static getHighlight(code, arrowVersion, compilerVersion, platform, hiddenDependencies) {
+    return executeCode(API_URLS.HIGHLIGHT, code, arrowVersion, compilerVersion, platform, "", hiddenDependencies)
       .then(data => data[DEFAULT_FILE_NAME])
   }
 }
 
-function executeCode(url, code, compilerVersion, targetPlatform, args, hiddenDependencies, options) {
+function executeCode(url, code, arrowVersion, compilerVersion, targetPlatform, args, hiddenDependencies, options) {
   const files = [buildFileObject(code, DEFAULT_FILE_NAME)]
     .concat(hiddenDependencies.map((file, index) => buildFileObject(file, `hiddenDependency${index}.kt`)));
   const projectJson = JSON.stringify({
     "id": "",
     "name": "",
     "args": args,
+    "arrowVersion": arrowVersion,
     "compilerVersion": compilerVersion,
     "confType": targetPlatform.id,
     "originUrl": null,
