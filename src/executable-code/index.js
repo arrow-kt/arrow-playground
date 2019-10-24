@@ -104,7 +104,7 @@ export default class ExecutableCode {
     insertAfter(mountNode, targetNode);
 
     const view = ExecutableFragment.render(mountNode, { parent: this, eventFunctions });
-    view.update(Object.assign({
+    view.update(Object.assign(eventFunctions = {}, {
       code: code,
       lines: lines,
       theme: editorTheme,
@@ -127,7 +127,7 @@ export default class ExecutableCode {
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
       outputHeight
-    }, eventFunctions));
+    }));
 
     this.id = id;
     this.config = cfg;
@@ -285,8 +285,7 @@ export default class ExecutableCode {
           const listOfArrowVersions = arrowVersions.map(version => version.version);
           let listOfVersions = versions.map(version => version.version);
 
-          if (listOfVersions.includes(config.version) && listOfArrowVersions.includes(config.arrowVersion)) {
-            arrowVersion = config.arrowVersion;
+          if (listOfVersions.includes(config.version)) {
             compilerVersion = config.version;
           } else if (listOfVersions.includes(options.version)) {
             compilerVersion = options.version;
@@ -296,13 +295,20 @@ export default class ExecutableCode {
                 latestStableVersion = compilerConfig.version;
               }
             });
+            compilerVersion = latestStableVersion;
+          }
+
+          if (listOfArrowVersions.includes(config.arrowVersion)) {
+            arrowVersion = config.arrowVersion;
+          } else if (listOfArrowVersions.includes(options.arrowVersion)) {
+            arrowVersion = options.arrowVersion;
+          } else {
             arrowVersions.forEach((arrowConfig) => {
               if (arrowConfig.latestStable) {
                 arrowLatestStableVersion = arrowConfig.version;
               }
             });
             arrowVersion = arrowLatestStableVersion;
-            compilerVersion = latestStableVersion;
           }
 
           if (minCompilerVersion) {
