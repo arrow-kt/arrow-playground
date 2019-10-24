@@ -240,10 +240,10 @@ export default class ExecutableCode {
 
   /**
    * @param {string|Node|NodeList} target
-   * @param {Function} eventFunctions
+   * @param {Object} options
    * @return {Promise<Array<ExecutableCode>>}
    */
-  static create(target, eventFunctions) {
+  static create(target, options) {
     let targetNodes;
 
     if (typeof target === 'string') {
@@ -281,6 +281,8 @@ export default class ExecutableCode {
 
           if (listOfVersions.includes(config.version)) {
             compilerVersion = config.version;
+          } else if (listOfVersions.includes(options.version)) {
+            compilerVersion = options.version;
           } else {
             versions.forEach((compilerConfig) => {
               if (compilerConfig.latestStable) {
@@ -295,7 +297,7 @@ export default class ExecutableCode {
               ? versions[versions.length - 1].version
               : latestStableVersion;
           }
-          instances.push(new ExecutableCode(node, {compilerVersion}, eventFunctions, index));
+          instances.push(new ExecutableCode(node, {compilerVersion}, options, index));
         } else {
           console.error('Cann\'t get kotlin version from server');
           instances.push(new ExecutableCode(node, {highlightOnly: true}));
