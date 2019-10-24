@@ -241,10 +241,10 @@ export default class ExecutableCode {
 
   /**
    * @param {string|Node|NodeList} target
-   * @param {Function} eventFunctions
+   * @param {Object} options
    * @return {Promise<Array<ExecutableCode>>}
    */
-  static async create(target, eventFunctions) {
+  static async create(target, options) {
     let targetNodes;
 
     if (typeof target === 'string') {
@@ -288,6 +288,8 @@ export default class ExecutableCode {
           if (listOfVersions.includes(config.version) && listOfArrowVersions.includes(config.arrowVersion)) {
             arrowVersion = config.arrowVersion;
             compilerVersion = config.version;
+          } else if (listOfVersions.includes(options.version)) {
+            compilerVersion = options.version;
           } else {
             versions.forEach((compilerConfig) => {
               if (compilerConfig.latestStable) {
@@ -308,7 +310,7 @@ export default class ExecutableCode {
               ? versions[versions.length - 1].version
               : latestStableVersion;
           }
-          instances.push(new ExecutableCode(node, {arrowVersion, compilerVersion}, eventFunctions, index));
+          instances.push(new ExecutableCode(node, {arrowVersion, compilerVersion}, options, index));
         } else {
           console.error('Can\'t get Arrow/Kotlin version from server');
           instances.push(new ExecutableCode(node, {highlightOnly: true}));
