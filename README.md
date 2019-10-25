@@ -34,12 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 You can also overwrite the server where the code will be sent to be compiled and analyzed (for example if you host a server instance that includes your own Kotlin libraries). For that you can set the `data-server` attribute.
 
-And you can also set a default Kotlin version for code snippets to run on. Bear in mind that the [version set per editor](#customizing-editors) will take precedence though:
+And you can also set a default Arrow or Kotlin version for code snippets to run on. Bear in mind that the [versions set per editor](#customizing-editors) will take precedence though:
 
 ```html
 <script src="https://unpkg.com/arrow-playground@1"
         data-selector="code"
         data-server="https://my-arrow-playground-server"
+        data-arrow-version="0.10.0"
         data-version="1.3.41">
 </script>
 ```
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-<!--
 ### Use from plugins
 
 1) [Kotlin Playground WordPress plugin](https://github.com/Kotlin/kotlin-playground-wp-plugin) — [WordPress](https://wordpress.com/) plugin which allows to embed interactive Kotlin playground to any post.
@@ -141,7 +141,16 @@ playground('.selector', options)
 
 Use the following attributes on elements that are converted to editors to adjust their behavior.
 
-- `data-version`: Target Kotlin [compiler version](https://try.kotlinlang.org/kotlinServer?type=getKotlinVersions):
+- `data-arrow-version`: Target [Arrow version](https://try.arrow-kt.io:80/kotlinServer?type=getArrowVersions):
+
+   ```html
+    <code data-arrow-version="0.10.0">
+    /*
+    Your code here
+    */
+    </code>
+    ```
+- `data-version`: Target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions):
 
    ```html
     <code data-version="1.0.7">

@@ -64,7 +64,7 @@ const MODES = {
 export default class ExecutableCode {
   /**
    * @param {string|HTMLElement} target
-   * @param {{compilerVersion: *}} [config]
+   * @param {{arrowVersion: *, compilerVersion: *}} [config]
    * @param {Object} eventFunctions
    * @param {number} id
    */
@@ -104,7 +104,7 @@ export default class ExecutableCode {
     insertAfter(mountNode, targetNode);
 
     const view = ExecutableFragment.render(mountNode, { parent: this, eventFunctions });
-    view.update(Object.assign({
+    view.update(Object.assign(eventFunctions = {}, {
       code: code,
       lines: lines,
       theme: editorTheme,
@@ -116,6 +116,7 @@ export default class ExecutableCode {
       to: to,
       autoComplete: autoComplete,
       hiddenDependencies: hiddenDependencies,
+      arrowVersion: cfg.arrowVersion,
       compilerVersion: cfg.compilerVersion,
       noneMarkers: noneMarkers,
       onFlyHighLight: onFlyHighLight,
@@ -126,7 +127,7 @@ export default class ExecutableCode {
       jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
       outputHeight
-    }, eventFunctions));
+    }));
 
     this.id = id;
     this.config = cfg;
@@ -243,7 +244,7 @@ export default class ExecutableCode {
    * @param {Object} options
    * @return {Promise<Array<ExecutableCode>>}
    */
-  static create(target, options) {
+  static async create(target, options) {
     let targetNodes;
 
     if (typeof target === 'string') {
@@ -259,12 +260,16 @@ export default class ExecutableCode {
       return Promise.resolve([]);
     }
 
+    const arrowVersions = await WebDemoApi.getArrowVersions();
+
     return WebDemoApi.getCompilerVersions().then((versions) => {
       const instances = [];
 
       targetNodes.forEach((node, index) => {
         const config = getConfigFromElement(node, true);
         const minCompilerVersion = config.minCompilerVersion;
+        let arrowLatestStableVersion = null;
+        let arrowVersion = null;
         let latestStableVersion = null;
         let compilerVersion = null;
 
@@ -276,7 +281,8 @@ export default class ExecutableCode {
           return;
         }
 
-        if (versions) {
+        if (versions && arrowVersions) {
+          const listOfArrowVersions = arrowVersions.map(version => version.version);
           let listOfVersions = versions.map(version => version.version);
 
           if (listOfVersions.includes(config.version)) {
@@ -292,14 +298,27 @@ export default class ExecutableCode {
             compilerVersion = latestStableVersion;
           }
 
+          if (listOfArrowVersions.includes(config.arrowVersion)) {
+            arrowVersion = config.arrowVersion;
+          } else if (listOfArrowVersions.includes(options.arrowVersion)) {
+            arrowVersion = options.arrowVersion;
+          } else {
+            arrowVersions.forEach((arrowConfig) => {
+              if (arrowConfig.latestStable) {
+                arrowLatestStableVersion = arrowConfig.version;
+              }
+            });
+            arrowVersion = arrowLatestStableVersion;
+          }
+
           if (minCompilerVersion) {
             compilerVersion = minCompilerVersion > latestStableVersion
               ? versions[versions.length - 1].version
               : latestStableVersion;
           }
-          instances.push(new ExecutableCode(node, {compilerVersion}, options, index));
+          instances.push(new ExecutableCode(node, {arrowVersion, compilerVersion}, options, index));
         } else {
-          console.error('Cann\'t get kotlin version from server');
+          console.error('Can\'t get Arrow/Kotlin version from server');
           instances.push(new ExecutableCode(node, {highlightOnly: true}));
         }
       });
