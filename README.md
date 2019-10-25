@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-<!--
 ### Use from plugins
 
 1) [Kotlin Playground WordPress plugin](https://github.com/Kotlin/kotlin-playground-wp-plugin) — [WordPress](https://wordpress.com/) plugin which allows to embed interactive Kotlin playground to any post.
