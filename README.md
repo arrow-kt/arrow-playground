@@ -34,12 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 You can also overwrite the server where the code will be sent to be compiled and analyzed (for example if you host a server instance that includes your own Kotlin libraries). For that you can set the `data-server` attribute.
 
-And you can also set a default Kotlin version for code snippets to run on. Bear in mind that the [version set per editor](#customizing-editors) will take precedence though:
+And you can also set a default Arrow or Kotlin version for code snippets to run on. Bear in mind that the [versions set per editor](#customizing-editors) will take precedence though:
 
 ```html
 <script src="https://unpkg.com/arrow-playground@1"
         data-selector="code"
         data-server="https://my-arrow-playground-server"
+        data-arrow-version="0.10.0"
         data-version="1.3.41">
 </script>
 ```
