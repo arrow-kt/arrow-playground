@@ -141,7 +141,7 @@ playground('.selector', options)
 
 Use the following attributes on elements that are converted to editors to adjust their behavior.
 
-- `data-arrow-version`: Target [Arrow version](https://try.arrow-kt.io:80/kotlinServer?type=getArrowVersions):
+- `data-arrow-version`: Target [Arrow version](https://try.arrow-kt.io/kotlinServer?type=getArrowVersions):
 
    ```html
     <code data-arrow-version="0.10.0">
@@ -150,7 +150,7 @@ Use the following attributes on elements that are converted to editors to adjust
     */
     </code>
     ```
-- `data-version`: Target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions):
+- `data-version`: Target Kotlin [compiler version](https://try.arrow-kt.io/kotlinServer?type=getKotlinVersions):
 
    ```html
     <code data-version="1.0.7">
@@ -254,7 +254,7 @@ fun main(args: Array<String>) {println({
 
 - `mode="kotlin|js|java|groovy|xml|c|shell|swift|obj-c"`: Different languages styles. Runnable snippets only with `kotlin`. Default to `kotlin`.
 
-- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io:80/kotlinServer?type=getKotlinVersions)
+- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://try.arrow-kt.io/kotlinServer?type=getKotlinVersions)
 
 - `data-autocomplete="true|false"`: Get completion on every key press. If `false` => Press ctrl-space to activate autocompletion. Defaults to `false`.
 

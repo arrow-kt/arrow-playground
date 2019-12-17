@@ -8,7 +8,7 @@ module.exports = (params = {}) => {
   const mainEntryName = isProduction ? 'playground.min' : 'playground';
   const isServer = process.argv[1].includes('webpack-dev-server');
   const libraryName = 'ArrowPlayground';
-  const webDemoUrl = params.webDemoUrl || 'https://try.arrow-kt.io:80';
+  const webDemoUrl = params.webDemoUrl || 'https://try.arrow-kt.io';
   const examplesPath = isServer ? '' : 'examples/';
   const incrementalExamplesPath = isServer ? '' : 'incremental/';
 
