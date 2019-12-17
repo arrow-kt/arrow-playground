@@ -268,6 +268,7 @@ export default class ExecutableCode {
       targetNodes.forEach((node, index) => {
         const config = getConfigFromElement(node, true);
         const minCompilerVersion = config.minCompilerVersion;
+        let arrowLatestVersion = null;
         let arrowLatestStableVersion = null;
         let arrowVersion = null;
         let latestStableVersion = null;
@@ -307,8 +308,11 @@ export default class ExecutableCode {
               if (arrowConfig.latestStable) {
                 arrowLatestStableVersion = arrowConfig.version;
               }
+              if (arrowConfig.latest) {
+                arrowLatestVersion = arrowConfig.version;
+              }
             });
-            arrowVersion = arrowLatestStableVersion;
+            arrowVersion = ((config.arrowVersion === "latest" || options.arrowVersion === "latest") && arrowLatestVersion) ? arrowLatestVersion : arrowLatestStableVersion;
           }
 
           if (minCompilerVersion) {
