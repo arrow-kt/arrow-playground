@@ -1,6 +1,7 @@
 @import "~codemirror/lib/codemirror.css";
 @import "~codemirror/theme/idea.css";
 @import "~codemirror/theme/darcula.css";
+@import "arrow.css";
 @import "~codemirror/addon/scroll/simplescrollbars.css";
 
 $font-family-mono: 'Liberation Mono', Consolas, Menlo, Courier, monospace !global;
@@ -114,7 +115,7 @@ $wt-color-azure: #167dff;
   width: 16px;
   cursor: pointer;
   background-size: cover;
-  background: url("img/run.svg") no-repeat;
+  background: url("../img/run.svg") no-repeat;
 
   &._disabled {
     cursor: default;
@@ -196,7 +197,7 @@ $wt-color-azure: #167dff;
   width: 13px;
   margin-top: 2px;
   margin-left: 2px;
-  background: url('img/icons_all_sprite.svg') no-repeat -150px -500px;
+  background: url('../img/icons_all_sprite.svg') no-repeat -150px -500px;
 }
 
 .WARNINGgutter {
@@ -204,7 +205,7 @@ $wt-color-azure: #167dff;
   width: 13px;
   margin-top: 2px;
   margin-left: 2px;
-  background: url('img/icons_all_sprite.svg') no-repeat -150px -600px;
+  background: url('../img/icons_all_sprite.svg') no-repeat -150px -600px;
 }
 
 .js-code-output-executor {
@@ -274,11 +275,11 @@ $wt-color-azure: #167dff;
   right: 0;
   width: 16px;
   height: 16px;
-  background: $wt-color-silver url('img/close-console-icon.svg') no-repeat;
+  background: $wt-color-silver url('../img/close-console-icon.svg') no-repeat;
 }
 
 .console-close.darcula {
-  background: url('img/close-console-icon.svg');
+  background: url('../img/close-console-icon.svg');
 }
 
 .console-close:hover {
@@ -307,19 +308,19 @@ $wt-color-azure: #167dff;
 }
 
 .console-icon.attention {
-  background: url('img/attention.svg') no-repeat;
+  background: url('../img/attention.svg') no-repeat;
 }
 
 .console-icon.passed {
-  background: url('img/ok.svg') no-repeat;
+  background: url('../img/ok.svg') no-repeat;
 }
 
 .console-icon.fail {
-  background: url('img/fail.svg') no-repeat;
+  background: url('../img/fail.svg') no-repeat;
 }
 
 .console-icon.error {
-  background: url('img/fail.svg') no-repeat;
+  background: url('../img/fail.svg') no-repeat;
 }
 
 .test-time {
@@ -361,30 +362,30 @@ $wt-color-azure: #167dff;
   transform: translate(-50%, -50%);
   z-index: 10;
   cursor: pointer;
-  background: transparent url('img/button_open.svg?fill=%23d4d4d4&selector=.data-fill') no-repeat;
+  background: transparent url('../img/button_open.svg?fill=%23d4d4d4&selector=.data-fill') no-repeat;
   &._hover {
-    background-image: url('img/button_open.svg?fill=%23f68322&selector=.data-fill');
+    background-image: url('../img/button_open.svg?fill=%23f68322&selector=.data-fill');
   }
 }
 
 .fold-button.darcula {
-  background: url('img/button_open_darcula.svg') no-repeat;
+  background: url('../img/button_open_darcula.svg') no-repeat;
   &._hover {
-    background-image: url('img/button_open_darcula.svg?fill=%23f68322&selector=.data-fill');
+    background-image: url('../img/button_open_darcula.svg?fill=%23f68322&selector=.data-fill');
   }
 }
 
 ._unfolded {
   .fold-button {
-    background-image: url('img/button_close.svg?fill=%23d4d4d4&selector=.data-fill');
+    background-image: url('../img/button_close.svg?fill=%23d4d4d4&selector=.data-fill');
     &._hover {
-      background-image: url('img/button_close.svg?fill=%23f68322&selector=.data-fill');
+      background-image: url('../img/button_close.svg?fill=%23f68322&selector=.data-fill');
     }
   }
   .fold-button.darcula {
-    background: url('img/button_close_darcula.svg') no-repeat;
+    background: url('../img/button_close_darcula.svg') no-repeat;
     &._hover {
-      background-image: url('img/button_close_darcula.svg?fill=%23f68322&selector=.data-fill');
+      background-image: url('../img/button_close_darcula.svg?fill=%23f68322&selector=.data-fill');
     }
   }
 }
@@ -464,7 +465,7 @@ li.CodeMirror-hint-active .tail {
 }
 
 .icon {
-  background: url('img/icons_all_sprite.svg');
+  background: url('../img/icons_all_sprite.svg');
 }
 
 div[label]:hover:after {

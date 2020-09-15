@@ -22,7 +22,7 @@ import {arrayFrom, getConfigFromElement, insertAfter, READ_ONLY_TAG, replaceWhit
 import WebDemoApi from "../webdemo-api";
 import TargetPlatform from '../target-platform'
 import ExecutableFragment from './executable-fragment';
-import '../styles.scss';
+import '../styles/styles.scss';
 
 const INITED_ATTRIBUTE_NAME = 'data-arrow-playground-initialized';
 const DEFAULT_INDENT = 4;
@@ -158,8 +158,12 @@ export default class ExecutableCode {
         return THEMES.DARCULA;
       case THEMES.IDEA:
         return THEMES.IDEA;
-      default:
+      case THEMES.ARROW:
+        return THEMES.ARROW;
+      case THEMES.DEFAULT:
         return THEMES.DEFAULT;
+      default:
+        return THEMES.ARROW;
     }
   }
 
