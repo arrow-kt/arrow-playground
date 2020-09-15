@@ -1,6 +1,6 @@
 {
   "name": "arrow-playground",
-  "version": "1.23.2",
+  "version": "1.23.3",
   "description": "Self-contained component to embed in websites for running Kotlin, Arrow library aware, code",
   "keywords": [
     "kotlin",
