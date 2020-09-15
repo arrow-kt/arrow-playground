@@ -44,8 +44,9 @@
 
     {% if (!highlightOnly) %}
         <div class="compiler-info" data-nosnippet>
+            <span>Running on Arrow v.{{ arrowVersion }}</span>
+            <span>Running on Kotlin v.{{ compilerVersion }}</span>
             <span>Target platform: {{ targetPlatform.printableName }}</span>
-            <span>Running on kotlin v.{{ compilerVersion }}</span>
         </div>
     {% endif %}
 

@@ -1,61 +1,59 @@
-[![official JetBrains project](http://jb.gg/badges/official-plastic.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![NPM version](https://img.shields.io/npm/v/kotlin-playground.svg)](https://www.npmjs.com/package/kotlin-playground)
+[![NPM version](https://img.shields.io/npm/v/kotlin-playground.svg)](https://www.npmjs.com/package/arrow-playground)
 
-# Kotlin Playground
+# Arrow Playground
 
-Component that creates Kotlin-aware editors capable of running code from HTML block elements.
+Component that creates Kotlin-aware, including the Arrow library, editors capable of running code from HTML block elements. This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team.
 
-[Examples](https://jetbrains.github.io/kotlin-playground/examples/)
+## Preview
+
+![Arrow Playground preview](preview.png "Arrow Playground")
 
 ## Installation
 
-### Use our CDN
+### Load it from a CDN
 
-Insert a `<script>` element into your page and specify what elements should be converted in its `data-selector` attribute.
+Generate the library through the proper `npm` script, then host it and insert a `<script>` element into your page, specifying what elements should be converted in its `data-selector` attribute.
 
 ```html
-<script src="https://unpkg.com/kotlin-playground@1" data-selector="code"></script>
+<script src="https://unpkg.com/arrow-playground@1" data-selector="code"></script>
 ```
 
 Or, if you need to separate process of loading/conversion, omit the `data-selector` attribute and use a second `<script>` element like this:
 
 ```html
-<script src="https://unpkg.com/kotlin-playground@1"></script>
+<script src="https://unpkg.com/arrow-playground@1"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  KotlinPlayground('.code-blocks-selector');
+  ArrowPlayground('.code-blocks-selector');
 });
 </script>
 ```
 
-You can also overwrite the server where the code will be sent to be compiled and analyzed (for example if you host a server instance that includes your own Kotlin libraries). For that you can set the `data-server` attribute.
-
-And you can also set a default Kotlin version for code snippets to run on. Bear in mind that the [version set per editor](#customizing-editors) will take precedence though:
+It's necessary to set the server where the code will be sent to be compiled and run with the Arrow libraries. For that you can set the `data-server` attribute:
 
 ```html
-<script src="https://unpkg.com/kotlin-playground@1"
+<script src="https://unpkg.com/arrow-playground@1"
         data-selector="code"
-        data-server="https://my-kotlin-playground-server"
-        data-version="1.3.41">
+        data-server="https://my-arrow-playground-server">
 </script>
 ```
 
-Fork & clone [the old server repository](https://github.com/JetBrains/kotlin-web-demo) or [the new server](https://github.com/AlexanderPrendota/kotlin-compiler-server).
+The custom playground server comes from [kotlin-compiler-server](https://github.com/arrow-kt/kotlin-compiler-server).
 
 ### Host your own instance
 
-Install Kotlin-playground as dependency via NPM.
+Install arrow-playground as dependency via NPM.
 
 ```bash
-npm install kotlin-playground -S
+npm install arrow-playground -S
 ```
 
 And then just use it in your code.
 
 ```js
 // ES5
-var playground = require('kotlin-playground');
+var playground = require('arrow-playground');
 
 document.addEventListener('DOMContentLoaded', function() {
   playground('code'); // attach to all <code> elements
@@ -63,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // ES6
-import playground from 'kotlin-playground';
+import playground from 'arrow-playground';
 
 document.addEventListener('DOMContentLoaded', () => {
   playground('code'); // attach to all <code> elements
@@ -91,8 +89,7 @@ function onTestPassed() {
 }
 
 const options = {
-  server: 'https://my-kotlin-playground-server',
-  version: '1.3.50',
+  server: 'https://my-arrow-playground-server',
   onChange: onChange,
   onTestPassed: onTestPassed,
   callback: callback(targetNode, mountNode)
@@ -134,18 +131,8 @@ playground('.selector', options)
 
 ## Customizing editors
 
-
 Use the following attributes on elements that are converted to editors to adjust their behavior.
 
-- `data-version`: Target Kotlin [compiler version](https://api.kotlinlang.org/versions):
-
-   ```html
-    <code data-version="1.0.7">
-    /*
-    Your code here
-    */
-    </code>
-    ```
 - `args`: Command line arguments.
 
   ```html
@@ -156,68 +143,11 @@ Use the following attributes on elements that are converted to editors to adjust
   </code>
   ```
 
-- `data-target-platform`: target platform: `junit`, `canvas`, `js` or `java` (default).
-
-  ```html
-   <code data-target-platform="js">
-    /*
-    Your code here
-    */
-   </code>
-   ```
-- `data-highlight-only`: Read-only mode, with only highlighting. `data-highlight-only="nocursor"` - no focus on editor.
-
-  ```html
-  <code data-highlight-only>
-    /*
-    Your code here
-    */
-  </code>
-  ```
-
-  Or, you can make only a part of code read-only by placing it between `//sampleStart` and `//sampleEnd` markers.
-  If you don't need this just use attribute `none-markers`.
-  For adding hidden files: put files between `<textarea>` tag with class `hidden-dependency`.
-
-  ```html
-  <code>
-  import cat.Cat
-
-  fun main(args: Array<String>) {
-  //sampleStart
-      val cat = Cat("Kitty")
-      println(cat.name)  
-  //sampleEnd                 
-  }
-    <textarea class="hidden-dependency">
-      package cat
-      class Cat(val name: String)
-    </textarea>
-  </code>
-  ```
-  Also if you want to hide code snippet just set the attribute `folded-button` to `false` value.
-
-- `data-js-libs`: By default component loads jQuery and makes it available to the code running in the editor. If you need any additional JS libraries, specify them as comma-separated list in this attribute.
-
-  ```html
-  <code data-js-libs="https://my-awesome-js-lib/lib.min.js">
-    /*
-    Your code here
-    */
-   </code>
-  ```
-
 - `auto-indent="true|false"`: Whether to use the context-sensitive indentation. Defaults to `false`.
 
 - `theme="idea|darcula|default"`: Editor IntelliJ IDEA themes.
 
 - `mode="kotlin|js|java|groovy|xml|c|shell|swift|obj-c"`: Different languages styles. Runnable snippets only with `kotlin`. Default to `kotlin`.
-
-- `data-min-compiler-version="1.0.7"`: Minimum target Kotlin [compiler version](https://api.kotlinlang.org/versions)
-
-- `data-autocomplete="true|false"`: Get completion on every key press. If `false` => Press ctrl-space to activate autocompletion. Defaults to `false`.
-
-- `highlight-on-fly="true|false"`: Errors and warnings check for each change in the editor. Defaults to `false`.
 
 - `indent="4"`: How many spaces a block should be indented. Defaults to `4`.
 
@@ -229,7 +159,6 @@ Use the following attributes on elements that are converted to editors to adjust
 
 - `match-brackets="true|false""`: Determines whether brackets are matched whenever the cursor is moved next to a bracket. Defaults to `false`.
 
-
 ## Supported keyboard shortcuts
 
   - Ctrl+Space		   — code completion
@@ -237,13 +166,9 @@ Use the following attributes on elements that are converted to editors to adjust
   - Ctrl+/		       — comment code
   - Ctrl+Alt+L/Cmd+Alt+L   — format code
   - Shift+Tab		   — decrease indent
-  - Ctrl+Alt+H/Cmd+Alt+H             — highlight code
-  - Alt+Enter/Option+Enter    — show import suggestions
-
 
 ## Develop and contribute
 
-1. Fork & clone [our repository](https://github.com/JetBrains/kotlin-playground).
-2. Install required dependencies `yarn install`.
-3. `yarn start` to start local development server at http://localhost:9000.
-4. `yarn run build` to create production bundles.
+1. Install required dependencies `yarn install`.
+2. `yarn start` to start local development server at http://localhost:9000.
+3. `yarn run build` to create production bundles.

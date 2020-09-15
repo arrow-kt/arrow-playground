@@ -7,7 +7,6 @@ import 'monkberry-events';
 import ExecutableCodeTemplate from './executable-fragment.monk';
 import WebDemoApi from '../webdemo-api';
 import TargetPlatform from "../target-platform";
-import JsExecutor from "../js-executor"
 import {countLines, escapeRegExp, THEMES, unEscapeString} from "../utils";
 import debounce from 'debounce';
 import CompletionView from "../view/completion-view";
@@ -89,9 +88,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     let sample;
     let hasMarkers = false;
     let platform = state.targetPlatform;
-    if (state.compilerVersion && (platform === TargetPlatform.JS || platform === TargetPlatform.CANVAS)) {
-      this.jsExecutor = new JsExecutor(state.compilerVersion);
-    }
 
     if (state.code) {
       let code = state.code;
@@ -235,9 +231,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
   onConsoleCloseButtonEnter() {
     const {jsLibs, onCloseConsole, targetPlatform } = this.state;
-    // creates a new iframe and removes the old one, thereby stops execution of any running script
-    if (targetPlatform === TargetPlatform.CANVAS || targetPlatform === TargetPlatform.JS)
-      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe());
     this.update({output: "", openConsole: false, exception: null});
     if (onCloseConsole) onCloseConsole();
   }
@@ -249,7 +242,7 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
 
   execute() {
     const {
-      onOpenConsole, targetPlatform, waitingForOutput, compilerVersion, onRun, onError,
+      onOpenConsole, targetPlatform, waitingForOutput, arrowVersion, compilerVersion, onRun, onError,
       args, theme, hiddenDependencies, onTestPassed, onTestFailed, onCloseConsole, jsLibs, outputHeight, getJsCode
     } = this.state;
     if (waitingForOutput) {
@@ -261,9 +254,10 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     });
     if (onOpenConsole) onOpenConsole(); //open when waitingForOutput=true
     if (onRun) onRun();
-    if (targetPlatform === TargetPlatform.JAVA || targetPlatform === TargetPlatform.JUNIT) {
+    if (targetPlatform === TargetPlatform.JAVA) {
       WebDemoApi.executeKotlinCode(
         this.getCode(),
+        arrowVersion,
         compilerVersion,
         targetPlatform, args,
         theme,
@@ -282,43 +276,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         },
         () => this.update({waitingForOutput: false})
       )
-    } else {
-      this.jsExecutor.reloadIframeScripts(jsLibs, this.getNodeForMountIframe());
-      WebDemoApi.translateKotlinToJs(this.getCode(), compilerVersion, targetPlatform, args, hiddenDependencies).then(
-        state => {
-          state.waitingForOutput = false;
-          const jsCode = state.jsCode;
-          delete state.jsCode;
-          if (getJsCode) getJsCode(jsCode);
-          let errors = state.errors.filter(error => error.severity === "ERROR");
-          if (errors.length > 0) {
-            if (onError) onError();
-            state.output = processErrors(errors);
-            state.openConsole = true;
-            state.exception = null;
-            this.update(state);
-          } else {
-            this.jsExecutor.executeJsCode(jsCode, jsLibs, targetPlatform,
-              outputHeight, theme, onError).then(output => {
-              if (output) {
-                state.openConsole = true;
-                state.output = output;
-              } else {
-                state.output = "";
-                if (onCloseConsole) onCloseConsole();
-              }
-              if (targetPlatform === TargetPlatform.CANVAS) {
-                if (onOpenConsole) onOpenConsole();
-                state.openConsole = true;
-              }
-              state.exception = null;
-              this.update(state);
-            });
-          }
-        },
-        () => this.update({waitingForOutput: false})
-      )
-
     }
   }
 
@@ -446,86 +403,13 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     // don't need to create additional editor options in readonly mode.
     if (readOnly) return;
 
-    /**
-     * Show highlight for extraKey Ctrl+Alt+H/Cmd+Option+H
-     */
-    let highlight = () => {
-      const {compilerVersion, targetPlatform, hiddenDependencies} = this.state;
-      this.removeStyles();
-      WebDemoApi.getHighlight(
-        this.getCode(),
-        compilerVersion,
-        targetPlatform,
-        hiddenDependencies
-      ).then(data => this.showDiagnostics(data))
-    }
-
-    const hint = (mirror, callback) => {
-      let cur = mirror.getCursor();
-      let token = mirror.getTokenAt(cur);
-      let code = this.state.folded
-        ? this.prefix + mirror.getValue() + this.suffix
-        : mirror.getValue();
-      let currentCursor = this.state.folded
-        ? {line: cur.line + this.prefix.split('\n').length - 1, ch: cur.ch}
-        : cur;
-      WebDemoApi.getAutoCompletion(
-        code,
-        currentCursor,
-        this.state.compilerVersion,
-        this.state.targetPlatform,
-        this.state.hiddenDependencies,
-        processingCompletionsList
-      );
-      let withImports = this.canAddImport;
-
-      function processingCompletionsList(results) {
-        const anchorCharPosition = mirror.findWordAt({line: cur.line, ch: cur.ch}).anchor.ch;
-        const headCharPosition = mirror.findWordAt({line: cur.line, ch: cur.ch}).head.ch;
-        const currentSymbol = mirror.getRange({line: cur.line, ch: anchorCharPosition}, {
-          line: cur.line,
-          ch: headCharPosition
-        });
-        if (results.length === 0 && /^[a-zA-Z]+$/.test(currentSymbol)) {
-          CodeMirror.showHint(mirror, CodeMirror.hint.auto, {completeSingle: false});
-        } else {
-          callback({
-            list: results.map(result => {
-              if (!withImports) result[IMPORT_NAME] = null;
-              return new CompletionView(result)
-            }),
-            from: {line: cur.line, ch: token.start},
-            to: {line: cur.line, ch: token.end}
-          })
-        }
-      }
-    }
-
-    CodeMirror.registerHelper('hint', 'kotlin', hint);
-
-    CodeMirror.hint.kotlin.async = true;
-
-    CodeMirror.commands.autocomplete = (cm) => { cm.showHint(cm); };
-
-    /**
-     * Register own helper for autocomplete.
-     * Getting completions from api.kotlinlang.org.
-     * CodeMirror.hint.default => getting list from codemirror kotlin keywords.
-     *
-     * {@see WebDemoApi}      - getting data from WebDemo
-     * {@see CompletionView} - implementation completion view
-     */
-    this.codemirror.setOption('hintOptions', { hint });
-
     if (window.navigator.appVersion.indexOf("Mac") !== -1) {
       this.codemirror.setOption("extraKeys", {
         "Cmd-Alt-L": "indentAuto",
         "Shift-Tab": "indentLess",
         "Ctrl-/": "toggleComment",
         "Cmd-[": false,
-        "Cmd-]": false,
-        "Ctrl-Space": "autocomplete",
-        "Cmd-Alt-H": highlight
+        "Cmd-]": false
       });
     } else {
       this.codemirror.setOption("extraKeys", {
@@ -533,39 +417,18 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         "Shift-Tab": "indentLess",
         "Ctrl-/": "toggleComment",
         "Ctrl-[": false,
-        "Ctrl-]": false,
-        "Ctrl-Space": "autocomplete",
-        "Ctrl-Alt-H": highlight
+        "Ctrl-]": false
       });
     }
 
     /**
      * When editor's changed:
      * 1) Remove all styles
-     * 2) if onFlyHighLight flag => getting highlight
      */
     this.codemirror.on("change", debounce((cm) => {
-      const {onChange, onFlyHighLight, compilerVersion, targetPlatform, hiddenDependencies} = this.state;
+      const {onChange} = this.state;
       if (onChange) onChange(cm.getValue());
       this.removeStyles();
-      if (onFlyHighLight) {
-        WebDemoApi.getHighlight(
-          this.getCode(),
-          compilerVersion,
-          targetPlatform,
-          hiddenDependencies).then(data => this.showDiagnostics(data))
-      }
-    }, DEBOUNCE_TIME));
-
-    /**
-     * If autoComplete => Getting completion on every key press on the editor.
-     */
-    this.codemirror.on("keypress", debounce((cm, event) => {
-      if (event.keyCode !== KEY_CODES.R && !event.ctrlKey) {
-        if (this.state.autoComplete && !cm.state.completionActive) {
-          CodeMirror.showHint(cm, CodeMirror.hint.kotlin, {completeSingle: false});
-        }
-      }
     }, DEBOUNCE_TIME));
 
     /**
@@ -584,43 +447,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
         }
       }
     });
-
-    /**
-     * Show import suggestions on Alt + Enter
-     */
-    this.codemirror.on('keypress', debounce((mirror, event) => {
-      if (event.altKey && event.keyCode === KEY_CODES.ENTER) {
-        if (this.importsSuggestions.length === 0) return;
-        let cur = mirror.getCursor();
-        let token = mirror.getTokenAt(cur);
-        let interval = {
-          start: {line: cur.line, ch: token.start},
-          end: {line: cur.line, ch: token.end}
-        };
-        let results = this.importsSuggestions
-          .filter( it => equal(it.interval, interval) )
-          .map ( it => it.imports )
-          .flat()
-        let withImports = this.canAddImport;
-        if (results.length !== 0) {
-          let options = {
-            hint: function () {
-              return {
-                from: mirror.getDoc().getCursor(),
-                to: mirror.getDoc().getCursor(),
-                list: results.map(result => {
-                  if (!withImports) {
-                    result[IMPORT_NAME] = null
-                  }
-                  return new CompletionView(result)
-                })
-              }
-            }
-          };
-          mirror.showHint(options);
-        }
-      }
-    }), DEBOUNCE_TIME)
   }
 
   destroy() {
@@ -628,7 +454,6 @@ export default class ExecutableFragment extends ExecutableCodeTemplate {
     this.importsSuggestions = [];
     this.arrayClasses = null;
     this.initialized = false;
-    this.jsExecutor = false;
     this.state = null;
     this.codemirror.toTextArea();
     this.off();

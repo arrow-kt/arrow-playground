@@ -24,7 +24,7 @@ import TargetPlatform from '../target-platform'
 import ExecutableFragment from './executable-fragment';
 import '../styles.scss';
 
-const INITED_ATTRIBUTE_NAME = 'data-kotlin-playground-initialized';
+const INITED_ATTRIBUTE_NAME = 'data-arrow-playground-initialized';
 const DEFAULT_INDENT = 4;
 
 const ATTRIBUTES = {
@@ -64,7 +64,7 @@ const MODES = {
 export default class ExecutableCode {
   /**
    * @param {string|HTMLElement} target
-   * @param {{compilerVersion: *}} [config]
+   * @param {{arrowVersion: *, compilerVersion: *}} [config]
    * @param {Object} eventFunctions
    */
   constructor(target, config = {}, eventFunctions) {
@@ -83,7 +83,6 @@ export default class ExecutableCode {
     const outputHeight = targetNode.getAttribute(ATTRIBUTES.OUTPUT_HEIGHT) || null;
     const targetPlatform = TargetPlatform.getById(targetNode.getAttribute(ATTRIBUTES.PLATFORM));
     const targetNodeStyle = targetNode.getAttribute(ATTRIBUTES.STYLE);
-    const jsLibs = this.getJsLibraries(targetNode, targetPlatform);
     const isFoldedButton = targetNode.getAttribute(ATTRIBUTES.FOLDED_BUTTON) !== "false";
     const lines = targetNode.getAttribute(ATTRIBUTES.LINES) === "true";
     const onFlyHighLight = targetNode.getAttribute(ATTRIBUTES.ON_FLY_HIGHLIGHT) === "true";
@@ -117,13 +116,13 @@ export default class ExecutableCode {
       to: to,
       autoComplete: autoComplete,
       hiddenDependencies: hiddenDependencies,
+      arrowVersion: cfg.arrowVersion,
       compilerVersion: cfg.compilerVersion,
       noneMarkers: noneMarkers,
       onFlyHighLight: onFlyHighLight,
       autoIndent: autoIndent,
       highlightOnly: highlightOnly,
       targetPlatform: targetPlatform,
-      jsLibs: jsLibs,
       isFoldedButton: isFoldedButton,
       outputHeight
     }, eventFunctions));
@@ -134,7 +133,7 @@ export default class ExecutableCode {
     this.targetNodeStyle = targetNodeStyle;
     this.view = view;
 
-    targetNode.KotlinPlayground = this;
+    targetNode.ArrowPlayground = this;
     if (eventFunctions && eventFunctions.callback) eventFunctions.callback(targetNode, mountNode);
   }
 
@@ -150,29 +149,6 @@ export default class ExecutableCode {
         node.parentNode.removeChild(node);
         return [...acc, replaceWhiteSpaces(node.textContent)];
       }, [])
-  }
-
-  /**
-   * Add additional JS-library.
-   * Setting JQuery as default library.
-   * @param targetNode - {NodeElement}
-   * @param platform - {TargetPlatform}
-   * @returns {Set} - set of additional libraries
-   */
-  getJsLibraries(targetNode, platform) {
-    if (platform === TargetPlatform.JS || platform === TargetPlatform.CANVAS) {
-      const jsLibs = targetNode.getAttribute(ATTRIBUTES.JS_LIBS);
-      let additionalLibs = new Set(API_URLS.JQUERY.split());
-      if (jsLibs) {
-        let checkUrl = new RegExp("https?://.+$");
-        jsLibs
-          .replace(" ", "")
-          .split(",")
-          .filter(lib => checkUrl.test(lib))
-          .forEach(lib => additionalLibs.add(lib));
-      }
-      return additionalLibs;
-    }
   }
 
   getTheme(targetNode) {
@@ -224,7 +200,7 @@ export default class ExecutableCode {
     }
 
     targetNode.removeAttribute(INITED_ATTRIBUTE_NAME);
-    delete targetNode.KotlinPlayground;
+    delete targetNode.ArrowPlayground;
   }
 
   isInited() {
@@ -259,9 +235,8 @@ export default class ExecutableCode {
 
       targetNodes.forEach((node) => {
         const config = getConfigFromElement(node, true);
-        const minCompilerVersion = config.minCompilerVersion;
-        let latestStableVersion = null;
         let compilerVersion = null;
+        let arrowVersion = null;
 
         // Skip empty and already initialized nodes
         if (
@@ -272,33 +247,11 @@ export default class ExecutableCode {
         }
 
         if (versions) {
-          versions.sort(function({ version: version1 }, { version: version2 }) {
-            if (version1 < version2) return -1;
-            if (version1 > version2) return 1;
-            return 0;
+          versions.forEach((compilerConfig) => {
+              compilerVersion = compilerConfig.version;
+              arrowVersion = compilerConfig.arrowVersion;
           });
-
-          let listOfVersions = versions.map(version => version.version);
-
-          if (listOfVersions.includes(config.version)) {
-            compilerVersion = config.version;
-          } else if (listOfVersions.includes(options.version)) {
-            compilerVersion = options.version;
-          } else {
-            versions.forEach((compilerConfig) => {
-              if (compilerConfig.latestStable) {
-                latestStableVersion = compilerConfig.version;
-              }
-            });
-            compilerVersion = latestStableVersion;
-          }
-
-          if (minCompilerVersion) {
-            compilerVersion = minCompilerVersion > latestStableVersion
-              ? versions[versions.length - 1].version
-              : latestStableVersion;
-          }
-          instances.push(new ExecutableCode(node, {compilerVersion}, options));
+          instances.push(new ExecutableCode(node, {arrowVersion, compilerVersion}, options));
         } else {
           console.error('Cann\'t get kotlin version from server');
           instances.push(new ExecutableCode(node, {highlightOnly: true}));
