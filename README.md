@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ### Options
 
-Kotlin Playground supports several events, and also Kotlin version or server URL overwriting passing an additional `options` parameter on initialisation.
+Kotlin Playground supports several events or server URL overwriting passing an additional `options` parameter on initialisation.
 
 For example:
 ```js
@@ -91,7 +91,6 @@ function onTestPassed() {
 const options = {
   server: 'https://my-arrow-playground-server',
   onChange: onChange,
-  onTestPassed: onTestPassed,
   callback: callback(targetNode, mountNode)
 };
 
@@ -104,16 +103,9 @@ playground('.selector', options)
 - `onChange(code)` — Fires every time the content of the editor is changed. Debounce time: 0.5s.
  _code_ — current playground code.
 
-- `onTestPassed` — Is called after all tests passed. Use for target platform `junit`.
-
-- `onTestFailed` — Is called after all tests failed. Use for target platform `junit`.
-
 - `onCloseConsole` — Is called after the console's closed.
 
 - `onOpenConsole` — Is called after the console's opened.
-
-- `getJsCode(code)` — Is called after compilation Kotlin to JS. Use for target platform `js`.
-   _code_ — converted JS code from Kotlin.
 
 - `callback(targetNode, mountNode)` — Is called after playground's united.
  _targetNode_ — node with plain text before component initialization.
@@ -171,4 +163,11 @@ Use the following attributes on elements that are converted to editors to adjust
 
 1. Install required dependencies `yarn install`.
 2. `yarn start` to start local development server at http://localhost:9000.
-3. `yarn run build` to create production bundles.
+3. `yarn run build` to create bundles.
+
+## Release
+1. `yarn run build:all` to create production bundles.
+2. Remove `dist/examples`
+3. `npm publish --dry-run` to check the publication
+4. `npm adduser`
+5. `npm publish`
