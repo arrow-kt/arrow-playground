@@ -13,6 +13,24 @@ This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/
 
 ![Arrow Playground preview](preview.png "Arrow Playground")
 
+## Develop and contribute
+
+Run server from [kotlin-compiler-server](https://github.com/arrow-kt/kotlin-compiler-server):
+```
+./gradlew bootRun
+```
+From this repository:
+1. Install required dependencies `yarn install`.
+2. `yarn start` to start local development server at http://localhost:9001.
+
+## Release
+
+1. `yarn run build:all` to create production bundles.
+2. Remove `dist/examples`
+3. `npm publish --dry-run` to check the publication
+4. `npm adduser`
+5. `npm publish`
+
 ## Installation
 
 ### Load it from a CDN
@@ -163,20 +181,3 @@ Use the following attributes on elements that are converted to editors to adjust
   - Ctrl+/		       — comment code
   - Ctrl+Alt+L/Cmd+Alt+L   — format code
   - Shift+Tab		   — decrease indent
-
-## Develop and contribute
-
-Run server from [kotlin-compiler-server](https://github.com/arrow-kt/kotlin-compiler-server):
-```
-./gradlew bootRun
-```
-From this repository:
-1. Install required dependencies `yarn install`.
-2. `yarn start` to start local development server at http://localhost:9001.
-
-## Release
-1. `yarn run build:all` to create production bundles.
-2. Remove `dist/examples`
-3. `npm publish --dry-run` to check the publication
-4. `npm adduser`
-5. `npm publish`
