@@ -6,7 +6,8 @@ Component that creates Kotlin-aware, including the Arrow library, editors capabl
 
 This is a fork of the original [Kotlin Playground](https://github.com/JetBrains/kotlin-playground) work done by JetBrains team:
 * `master` branch keeps the same content
-* `arrow` branch contains the customization for Arrow
+* `arrow` branch contains the customization for Arrow (default branch for this repository and target for pull requests)
+* `1.21.1` branch contains the first customization for Arrow
 
 ## Preview
 
