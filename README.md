@@ -166,9 +166,13 @@ Use the following attributes on elements that are converted to editors to adjust
 
 ## Develop and contribute
 
+Run server from [kotlin-compiler-server](https://github.com/arrow-kt/kotlin-compiler-server):
+```
+./gradlew bootRun
+```
+From this repository:
 1. Install required dependencies `yarn install`.
-2. `yarn start` to start local development server at http://localhost:9000.
-3. `yarn run build` to create bundles.
+2. `yarn start` to start local development server at http://localhost:9001.
 
 ## Release
 1. `yarn run build:all` to create production bundles.
