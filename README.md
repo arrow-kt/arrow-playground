@@ -25,6 +25,7 @@ From this repository:
 
 ## Release
 
+0. Update version in `package.json` and create tag.
 1. `yarn run build:all` to create production bundles.
 2. Remove `dist/examples`
 3. `npm publish --dry-run` to check the publication
