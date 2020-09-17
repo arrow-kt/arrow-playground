@@ -135,6 +135,38 @@ Use the following attributes on elements that are converted to editors to adjust
   </code>
   ```
 
+- `data-highlight-only`: Read-only mode, with only highlighting. `data-highlight-only="nocursor"` - no focus on editor.
+
+  ```html
+  <code data-highlight-only>
+    /*
+    Your code here
+    */
+  </code>
+  ```
+
+  Or, you can make only a part of code read-only by placing it between `//sampleStart` and `//sampleEnd` markers.
+  If you don't need this just use attribute `none-markers`.
+  For adding hidden files: put files between `<textarea>` tag with class `hidden-dependency`.
+
+  ```html
+  <code>
+  import cat.Cat
+
+  fun main(args: Array<String>) {
+  //sampleStart
+      val cat = Cat("Kitty")
+      println(cat.name)  
+  //sampleEnd                 
+  }
+    <textarea class="hidden-dependency">
+      package cat
+      class Cat(val name: String)
+    </textarea>
+  </code>
+  ```
+  Also if you want to hide code snippet just set the attribute `folded-button` to `false` value.
+
 - `auto-indent="true|false"`: Whether to use the context-sensitive indentation. Defaults to `false`.
 
 - `theme="idea|darcula|default"`: Editor IntelliJ IDEA themes.
