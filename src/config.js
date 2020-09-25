@@ -28,14 +28,14 @@ export const API_URLS = {
     return url;
   },
   get VERSIONS() {
-    return `${this.server}/versions`;
+    // return `${this.server}/versions`;
     // It doesn't make sense to start the lambda function every time to get the versions
-    //   const isReleaseVersion = /release/g;
-    //   const defaultServer = `${this.server}`.toLowerCase();
-    //   if (defaultServer.match(isReleaseVersion) != null) {
-    //     return `https://arrow-kt.io/kotlin-compiler-server/versions/release/versions.json`;
-    //   }
-    //   return `https://arrow-kt.io/kotlin-compiler-server/versions/snapshot/versions.json`;
+    const isReleaseVersion = /release/g;
+    const defaultServer = `${this.server}`.toLowerCase();
+    if (defaultServer.match(isReleaseVersion) != null) {
+      return `https://arrow-kt.io/kotlin-compiler-server/versions/release/versions.json`;
+    }
+    return `https://arrow-kt.io/kotlin-compiler-server/versions/snapshot/versions.json`;
   }
 };
 
